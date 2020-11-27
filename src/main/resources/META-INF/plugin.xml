@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>eu.theblob42.idea.whichkey</id>
+    <name>IDEA Which-Key</name>
+    <vendor url="https://github.com/TheBlob42">TheBlob42</vendor>
+
+    <description><![CDATA[
+    IdeaVim extension that displays available keybindings in popup
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>IdeaVIM</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
