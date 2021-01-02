@@ -10,6 +10,10 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
 
+    <extensions defaultExtensionNs="IdeaVIM">
+        <vimExtension implementation="eu.theblob42.idea.whichkey.WhichKeyExtension" name="which-key"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
     </extensions>

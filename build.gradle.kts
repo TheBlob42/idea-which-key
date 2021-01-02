@@ -13,6 +13,10 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
+
+    compile("org.apache.logging.log4j", "log4j-core", "2.14.0")
+    compile("org.apache.logging.log4j", "log4j-api", "2.14.0")
+
     testCompile("junit", "junit", "4.12")
 }
 
@@ -21,6 +25,7 @@ intellij {
     version = "2020.2.4"
     setPlugins("IdeaVIM:0.61")
 }
+
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
       Add change notes here.<br>
