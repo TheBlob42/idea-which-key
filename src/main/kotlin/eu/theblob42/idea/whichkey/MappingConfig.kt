@@ -51,15 +51,40 @@ object MappingConfig {
      *
      * `gw, gb, gq`
      *
+     * The actual entries contain the key to press and a description:
+     *
+     * `w ⟶ Prefix`
+     *
      * @return A [List] with all relevant mappings (default: empty list)
      */
-    fun getNestedMappings(mode: MappingMode, keySequence: CharSequence): List<String> {
+    fun getNestedMappings(mode: MappingMode, typedSequence: CharSequence): List<String> {
         return mappingsPerMode[mode]?.entries
             // only consider mappings which could be direct children (length + 1)
-            ?.filter { it.key.length == keySequence.length + 1}
-            ?.filter { it.key.startsWith(keySequence) }
-            ?.map { "${it.key} - ${it.value}" }
+            ?.filter { it.key.length == typedSequence.length + 1}
+            ?.filter { it.key.startsWith(typedSequence) }
+            ?.map { formatNestedMappingEntry(typedSequence, it) }
             ?: listOf()
+    }
+
+    /**
+     * Format nested mapping to be concise, readable and deal with HTML special cases
+     *
+     * @param typedSequence The already typed key sequence
+     * @param mapping The mapping entry to format
+     * @return The formatted string ready to be displayed in the Which-Key popup
+     */
+    private fun formatNestedMappingEntry(typedSequence: CharSequence, mapping: MutableMap.MutableEntry<String, String>): String {
+        val (seq, desc) = mapping
+        val modifiedSeq = seq
+            // remove previously typed keys from sequence
+            .replaceFirst(typedSequence.toString(), "")
+            // replace the space character with the more readable 'SPC' string
+            .replace(" ", "SPC")
+        val modifiedDesc = desc
+            // escape angle brackets for usage in HTML
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        return "$modifiedSeq ⟶ $modifiedDesc"
     }
 
 }
