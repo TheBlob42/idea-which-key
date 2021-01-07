@@ -12,17 +12,30 @@ import com.intellij.ui.awt.RelativePoint
 import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.option.OptionsManager
+import kotlinx.coroutines.*
 import javax.swing.JLabel
 
 class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActionHandler): TypedActionHandlerEx {
+
+    private var currentBalloon: Balloon? = null
+    private var displayBalloonJob: Job? = null
 
     override fun execute(editor: Editor, charTyped: Char, dataContext: DataContext) {
         vimTypedActionHandler.execute(editor, charTyped, dataContext)
     }
 
     override fun beforeExecute(editor: Editor, charTyped: Char, dataContext: DataContext, plan: ActionPlan) {
-        val mappingState = CommandState.getInstance(editor).mappingState
+        // cancel job or wait till it's done (if it already started)
+        runBlocking {
+            displayBalloonJob?.cancelAndJoin()
+        }
+        // hide Balloon if present and reset value
+        currentBalloon?.let {
+            it.hide()
+            currentBalloon = null
+        }
 
+        val mappingState = CommandState.getInstance(editor).mappingState
         // retrieve previously typed keys
         val typedKeysStringBuilder = StringBuilder()
         mappingState.keys.forEach { typedKeysStringBuilder.append(it) }
@@ -67,11 +80,22 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
                 0L
             }
             val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
-            JBPopupFactory.getInstance()
+
+            // the extra variable 'newWhichKeyBalloon' is needed so that the currently displayed Balloon
+            // can be hidden in case the 'displayBalloonJob' gets canceled before execution
+            val newWhichKeyBalloon = JBPopupFactory.getInstance()
                 .createHtmlTextBalloonBuilder(mappingsStringBuilder.toString(), null, EditorColorsManager.getInstance().globalScheme.defaultBackground, null)
+                .setAnimationCycle(10) // shorten animation time
                 .setFadeoutTime(fadeoutTime)
                 .createBalloon()
-                .show(target, Balloon.Position.above)
+
+            // wait for a few ms before showing the Balloon to prevent
+            // flickering on fast consecutive key presses
+            displayBalloonJob = GlobalScope.launch {
+                    delay(200)
+                    newWhichKeyBalloon.show(target, Balloon.Position.above)
+                    currentBalloon = newWhichKeyBalloon
+            }
         }
 
         // continue with the default behavior of IdeaVim
