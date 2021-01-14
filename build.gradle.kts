@@ -23,7 +23,9 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = "2020.2.4"
+    version = "2020.1"
+    // do not patch plugin.xml since/until build with values inferred from the intellij version
+    updateSinceUntilBuild = false
 
     setPlugins("IdeaVIM:0.62")
 }
