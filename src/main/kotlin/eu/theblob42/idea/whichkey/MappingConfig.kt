@@ -2,42 +2,107 @@ package eu.theblob42.idea.whichkey
 
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.command.MappingMode
-import java.lang.StringBuilder
+import com.maddyhome.idea.vim.helper.StringHelper
+import java.awt.event.KeyEvent
+import javax.swing.KeyStroke
 
 object MappingConfig {
 
-    private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<String, String>>()
+    private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<MappingSequence, String>>()
 
     init {
-        // retrieve all mappings for all modes and save them within this config
+        // retrieve all mappings for all modes and save them
         for (mode in enumValues<MappingMode>()) {
             val keyMapping = VimPlugin.getKey().getKeyMapping(mode)
             for (keyStrokes in keyMapping) {
-                val keySequence = keyStrokes
-                    .map { it.keyChar }
-                    .joinToString(separator = "") { it.toString() }
+                // Check for fake <Plug> mappings and ignore them here
+                // Check 'VimExtensionFacade.putExtensionHandlerMapping(...)' for more information
+                val code = keyStrokes[0].keyCode
+                if (code == KeyEvent.CHAR_UNDEFINED.toInt().dec() // VK_PLUG constant is private
+                    || code == StringHelper.VK_ACTION) {
+                    continue
+                }
+
                 val description = keyMapping[keyStrokes]!!.getPresentableString()
-                addMapping(mode, keySequence, description)
+                addMapping(mode, keyStrokes, description)
             }
         }
+    }
+
+    /**
+     * Convert a single key press or combination into an appropriate [String] representation
+     *
+     * @param keyStroke The pressed key (combination) as [KeyStroke]
+     * @return String representation of the pressed key or key combination
+     */
+    fun keyToString(keyStroke: KeyStroke): String {
+        return keyToString(keyStroke.keyChar, keyStroke.keyCode, keyStroke.modifiers)
+    }
+
+    /**
+     * Convert a single key press or combination into an appropriate [String] representation
+     *
+     * @param keyChar Character associated with the pressed key
+     * @param keyCode The key code of the pressed key
+     * @param modifiers The modifier code for the pressed key combination (0 if not applicable)
+     * @return String representation of the pressed key or key combination
+     */
+    fun keyToString(keyChar: Char, keyCode: Int, modifiers: Int): String {
+        // special case for " "
+        if (keyChar == ' ') {
+            return "<Space>"
+        }
+
+        if (keyCode == 0) {
+            return keyChar.toString()
+        }
+
+        val mod = KeyEvent.getKeyModifiersText(modifiers)
+        val key = KeyEvent.getKeyText(keyCode).let {
+            if (it.length == 1) {
+                it.toLowerCase()
+            } else {
+                it
+            }
+        }
+
+        if (mod.isNotEmpty()) {
+            val modifiedMod = mod
+                .replace("+", "-")
+                .replace("Alt", "A")
+                .replace("Ctrl", "C")
+                .replace("Shift", "S")
+                .replace("Escape", "Esc")
+            return "<${modifiedMod}-${key}>"
+        }
+
+        return if (key.length > 1) "<$key>" else key
     }
 
     /**
      * Add a description for a key sequence
      * Automatically create entries for all prefix sequences (if they do not exist yet)
      * If the description is blank uses a default value
+     *
+     * @param mode The [MappingMode] to add the sequence to
+     * @param keySequence The [List] of [KeyStroke]s representing the sequence
+     * @param description A description which should be added for the given sequence
      */
-    private fun addMapping(mode: MappingMode, keySequence: CharSequence, description: String) {
+    private fun addMapping(mode: MappingMode, keySequence: List<KeyStroke>, description: String) {
         val mappings = mappingsPerMode.getOrPut(mode) { mutableMapOf() }
 
-        val sequenceBuilder = StringBuilder()
-        for (key in keySequence) {
-            sequenceBuilder.append(key)
-            // create non existing prefixes with default description
-            mappings.putIfAbsent(sequenceBuilder.toString(), "Prefix")
+        val tmpSequence = mutableListOf<KeyStroke>()
+        for (keyStroke in keySequence) {
+            tmpSequence.add(keyStroke)
+
+            // add the description for the last element of the sequence
+            val desc = if (tmpSequence.size == keySequence.size) {
+                if (description.isNotBlank()) description else "No description"
+            } else {
+                "Prefix"
+            }
+            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), desc)
         }
-        // add passed description to last entry
-        mappings[sequenceBuilder.toString()] = if (description.isNotBlank()) description else "No description"
     }
 
     /**
@@ -51,40 +116,28 @@ object MappingConfig {
      *
      * `gw, gb, gq`
      *
-     * The actual entries contain the key to press and a description:
+     * The actual entries contain the key to press and the corresponding description:
      *
      * `w ⟶ Prefix`
      *
+     * @param mode The current [MappingMode]
+     * @param keyStrokes The [List] of pressed [KeyStroke]s
      * @return A [List] with all relevant mappings (default: empty list)
      */
-    fun getNestedMappings(mode: MappingMode, typedSequence: CharSequence): List<String> {
+    fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<String> {
+        val typedSequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
         return mappingsPerMode[mode]?.entries
             // only consider mappings which could be direct children (length + 1)
-            ?.filter { it.key.length == typedSequence.length + 1}
-            ?.filter { it.key.startsWith(typedSequence) }
-            ?.map { formatNestedMappingEntry(typedSequence, it) }
+            ?.filter { it.key.keyStrokes.size == keyStrokes.size.inc() }
+            ?.filter { it.key.sequence.startsWith(typedSequence) }
+            ?.map {
+                val key = it.key.sequence.replace(typedSequence, "")
+                val value = it.value
+                "${key} -> ${value}"
+                    // escape angle brackets for usage in HTML
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+            }
             ?: listOf()
     }
-
-    /**
-     * Format nested mapping to be concise, readable and deal with HTML special cases
-     *
-     * @param typedSequence The already typed key sequence
-     * @param mapping The mapping entry to format
-     * @return The formatted string ready to be displayed in the Which-Key popup
-     */
-    private fun formatNestedMappingEntry(typedSequence: CharSequence, mapping: MutableMap.MutableEntry<String, String>): String {
-        val (seq, desc) = mapping
-        val modifiedSeq = seq
-            // remove previously typed keys from sequence
-            .replaceFirst(typedSequence.toString(), "")
-            // replace the space character with the more readable 'SPC' string
-            .replace(" ", "SPC")
-        val modifiedDesc = desc
-            // escape angle brackets for usage in HTML
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-        return "$modifiedSeq ⟶ $modifiedDesc"
-    }
-
 }

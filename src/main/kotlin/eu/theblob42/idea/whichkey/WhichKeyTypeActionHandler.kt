@@ -14,6 +14,7 @@ import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.option.OptionsManager
 import kotlinx.coroutines.*
 import javax.swing.JLabel
+import javax.swing.KeyStroke
 
 class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActionHandler): TypedActionHandlerEx {
 
@@ -35,17 +36,12 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
             currentBalloon = null
         }
 
-        val mappingState = CommandState.getInstance(editor).mappingState
-        // retrieve previously typed keys
-        val typedKeysStringBuilder = StringBuilder()
-        mappingState.keys.forEach { typedKeysStringBuilder.append(it) }
-        // append the last typed character
-        typedKeysStringBuilder.append(charTyped)
-        val typedSequence = typedKeysStringBuilder.toString()
-            .replace("typed ", "") // remove prefix
 
         val ideFrame = WindowManager.getInstance().findVisibleFrame()
-        val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedSequence)
+
+        val mappingState = CommandState.getInstance(editor).mappingState
+        val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
+        val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
         // show all available nested mappings in a balloon
         if (ideFrame != null && nestedMappings.isNotEmpty()) {
             val frameWidth = ideFrame.width
