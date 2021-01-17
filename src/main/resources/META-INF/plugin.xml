@@ -20,7 +20,7 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+        <action id="VimShortcutKeyAction" class="eu.theblob42.idea.whichkey.WhichKeyShortcutKeyAction"/>
     </actions>
 
 </idea-plugin>
