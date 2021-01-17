@@ -57,7 +57,10 @@ object PopupConfig {
          * so far this method has worked quite well and since I'm missing a better alternative this stays for now
          */
         val maxStringWidth = JLabel(maxString).preferredSize.width
-        val possibleColumns = frameWidth / maxStringWidth
+        val possibleColumns = (frameWidth / maxStringWidth).let {
+            // ensure a minimum value of 1 to avoid dividing by zero
+            if (it < 1) 1 else it
+        }
         val elementsPerColumn = ceil(nestedMappings.size / possibleColumns.toDouble()).toInt()
         val windowedMappings = nestedMappings.windowed(elementsPerColumn, elementsPerColumn, true)
 
