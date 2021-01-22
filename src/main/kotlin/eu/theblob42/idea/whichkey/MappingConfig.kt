@@ -129,12 +129,6 @@ object MappingConfig {
         // search nested mappings for the "exact" key stroke sequence
         val nestedMappings = extractNestedMappings(mode, keyStrokes).toMutableList()
 
-        // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
-        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
-        if (sequenceMapping != null && sequenceMapping is ToKeysMappingInfo) {
-            nestedMappings.addAll(extractNestedMappings(mode, sequenceMapping.toKeys))
-        }
-
         // check if parts of the typed key sequence map to other key sequences,
         // replace them and search for nested mappings of the resulting sequence
         var replacedKeyStrokes = mutableListOf<KeyStroke>()
@@ -149,6 +143,14 @@ object MappingConfig {
 
         if (replacedKeyStrokes != keyStrokes) {
             nestedMappings.addAll(extractNestedMappings(mode, replacedKeyStrokes))
+        }
+
+        // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
+        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
+        if (sequenceMapping != null
+            && sequenceMapping is ToKeysMappingInfo
+            && sequenceMapping.toKeys != replacedKeyStrokes){
+            nestedMappings.addAll(extractNestedMappings(mode, sequenceMapping.toKeys))
         }
 
         return nestedMappings
