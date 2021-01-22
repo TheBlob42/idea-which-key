@@ -3,6 +3,7 @@ package eu.theblob42.idea.whichkey
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.helper.StringHelper
+import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
@@ -125,15 +126,53 @@ object MappingConfig {
      * @return A [List] with all relevant mappings (default: empty list)
      */
     fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<String> {
+        // search nested mappings for the "exact" key stroke sequence
+        val nestedMappings = extractNestedMappings(mode, keyStrokes).toMutableList()
+
+        // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
+        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
+        if (sequenceMapping != null && sequenceMapping is ToKeysMappingInfo) {
+            nestedMappings.addAll(extractNestedMappings(mode, sequenceMapping.toKeys))
+        }
+
+        // check if parts of the typed key sequence map to other key sequences,
+        // replace them and search for nested mappings of the resulting sequence
+        var replacedKeyStrokes = mutableListOf<KeyStroke>()
+        for (keyStroke in keyStrokes) {
+            replacedKeyStrokes.add(keyStroke)
+            val mapping = VimPlugin.getKey().getKeyMapping(mode)[replacedKeyStrokes]
+
+            if (mapping != null && mapping is ToKeysMappingInfo) {
+                replacedKeyStrokes = mapping.toKeys.toMutableList()
+            }
+        }
+
+        if (replacedKeyStrokes != keyStrokes) {
+            nestedMappings.addAll(extractNestedMappings(mode, replacedKeyStrokes))
+        }
+
+        return nestedMappings
+    }
+
+    /**
+     * Helper function to avoid duplicate code within [getNestedMappings]
+     */
+    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<String> {
         val typedSequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
+
         return mappingsPerMode[mode]?.entries
-            // only consider mappings which could be direct children (length + 1)
-            ?.filter { it.key.keyStrokes.size == keyStrokes.size.inc() }
-            ?.filter { it.key.sequence.startsWith(typedSequence) }
+            ?.filter {
+                // only mappings which start with the same prefix
+                val samePrefix = it.key.sequence.startsWith(typedSequence)
+                // only mappings which are direct children (length + 1)
+                val directChild = it.key.keyStrokes.size == keyStrokes.size.inc()
+                // filter for multiple checks at once to avoid unnecessary iterations because of multiple '.filter' calls
+                samePrefix && directChild
+            }
             ?.map {
+                // only display the next character to press, instead of the whole sequence
                 val key = it.key.sequence.replace(typedSequence, "")
-                val value = it.value
-                "${key} -> ${value}"
+                "${key} -> ${it.value}"
                     // escape angle brackets for usage in HTML
                     .replace("<", "&lt;")
                     .replace(">", "&gt;")
