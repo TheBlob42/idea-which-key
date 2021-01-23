@@ -154,12 +154,26 @@ object MappingConfig {
         }
 
         return nestedMappings
+            // sort all mappings alphabetically by there key
+            .sortedBy { it.first }
+            .map { (key, desc) ->
+                "${key} -> ${desc}"
+                    // escape angle brackets for usage in HTML
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+            }
     }
 
     /**
      * Helper function to avoid duplicate code within [getNestedMappings]
+     *
+     * @param mode The current [MappingMode]
+     * @param keyStrokes The [List] of pressed [KeyStroke]s
+     * @return A [List] of [Pair]<String, String> describing the extracted nested mappings.
+     * The first value is the next key to press.
+     * The second value is the mapping description.
      */
-    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<String> {
+    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, String>> {
         val typedSequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
 
         return mappingsPerMode[mode]?.entries
@@ -172,12 +186,9 @@ object MappingConfig {
                 samePrefix && directChild
             }
             ?.map {
-                // only display the next character to press, instead of the whole sequence
-                val key = it.key.sequence.replace(typedSequence, "")
-                "${key} -> ${it.value}"
-                    // escape angle brackets for usage in HTML
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;")
+                // only display the next key to press, instead of the whole sequence
+                val key = it.key.sequence.replaceFirst(typedSequence, "")
+                Pair(key, it.value)
             }
             ?: listOf()
     }
