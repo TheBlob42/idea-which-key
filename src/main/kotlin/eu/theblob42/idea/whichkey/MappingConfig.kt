@@ -2,6 +2,7 @@ package eu.theblob42.idea.whichkey
 
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.command.MappingMode
+import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
 import com.maddyhome.idea.vim.helper.StringHelper
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import java.awt.event.KeyEvent
@@ -10,8 +11,25 @@ import javax.swing.KeyStroke
 object MappingConfig {
 
     private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<MappingSequence, String>>()
+    private val whichKeyDescriptions: List<String>
 
     init {
+        // check for the defined leader key, default is "\"
+        // for reference check StringHelper.parseMapLeader(String s)
+        val leaderKey = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]?.let {
+            when (it) {
+                is String -> it.map { keyToString(it, 0, 0) }.joinToString(separator = "")
+                else -> "\\"
+            }
+        } ?: "\\"
+        // extract all WhichKey description variables from the '.ideavimrc' file
+        whichKeyDescriptions = VimScriptGlobalEnvironment.getInstance().variables.entries
+            .asSequence()
+            .filter { it.key.startsWith("g:WhichKeyDesc_") }
+            .map { it.value.toString() }
+            .map { it.replace("<leader>", leaderKey) }
+            .toList()
+
         // retrieve all mappings for all modes and save them
         for (mode in enumValues<MappingMode>()) {
             val keyMapping = VimPlugin.getKey().getKeyMapping(mode)
@@ -87,23 +105,49 @@ object MappingConfig {
      *
      * @param mode The [MappingMode] to add the sequence to
      * @param keySequence The [List] of [KeyStroke]s representing the sequence
-     * @param description A description which should be added for the given sequence
+     * @param presentableString The default description for the action to add
+     * (only used if there is no custom description in the `.ideavimrc` file)
      */
-    private fun addMapping(mode: MappingMode, keySequence: List<KeyStroke>, description: String) {
+    private fun addMapping(mode: MappingMode, keySequence: List<KeyStroke>, presentableString: String) {
         val mappings = mappingsPerMode.getOrPut(mode) { mutableMapOf() }
 
         val tmpSequence = mutableListOf<KeyStroke>()
         for (keyStroke in keySequence) {
             tmpSequence.add(keyStroke)
 
-            // add the description for the last element of the sequence
-            val desc = if (tmpSequence.size == keySequence.size) {
-                if (description.isNotBlank()) description else "No description"
-            } else {
-                "Prefix"
-            }
-            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), desc)
+            val description = getWhichKeyDescription(tmpSequence)
+                ?: if (tmpSequence.size == keySequence.size) {
+                    // add the description for the last element of the sequence
+                    if (presentableString.isNotBlank()) presentableString else "No description"
+                } else {
+                    "Prefix"
+                }
+            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), description)
         }
+    }
+
+    /**
+     * Check if there is a custom description for the given key stroke sequence defined in the `.ideavimrc`  file
+     *
+     * @param keySequence A [List] of [KeyStroke]s to check
+     * @return Custom description if there is one. In case of more than one custom description
+     * in the configuration, log the sequence and return the first value found
+     */
+    private fun getWhichKeyDescription(keySequence: List<KeyStroke>): String? {
+        val sequenceString = keySequence.joinToString(separator = "") { keyToString(it) }
+        val sequenceRegex = Regex("${Regex.escape(sequenceString)}[ \\t]+(.*)")
+
+        val filteredDescriptions = whichKeyDescriptions
+            .filter { it.matches(sequenceRegex) }
+            .mapNotNull {
+                sequenceRegex.find(it)?.groupValues?.get(1)
+            }
+
+        if (filteredDescriptions.size > 1) {
+            WhichKeyExtension.logger.warn("Found more than one custom WhichKey descriptions for sequence: $sequenceString")
+        }
+
+        return filteredDescriptions.firstOrNull()
     }
 
     /**
