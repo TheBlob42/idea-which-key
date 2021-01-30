@@ -16,6 +16,14 @@ Install the jar in Intellij via *File -> Settings -> Plugins -> Install Plugin f
 
 ![install plugin from disk](/assets/manual_installation.png)
 
+### Activation
+
+Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc`:
+
+```text
+set which-key
+```
+
 ## Customization
 
 If no custom descriptions are defined, the right-hand side of all mappings will be displayed:
