@@ -1,11 +1,16 @@
 <idea-plugin>
     <id>eu.theblob42.idea.whichkey</id>
     <name>IDEA Which-Key</name>
-    <vendor url="https://github.com/TheBlob42">TheBlob42</vendor>
+    <vendor url="https://github.com/TheBlob42">Tobias Völzel</vendor>
     <idea-version since-build="201"/>
 
     <description><![CDATA[
-    IdeaVim extension that displays available keybindings in popup
+    <p>
+        <a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup
+    </p>
+    <p>
+        For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a>
+    </p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -13,10 +18,6 @@
 
     <extensions defaultExtensionNs="IdeaVIM">
         <vimExtension implementation="eu.theblob42.idea.whichkey.WhichKeyExtension" name="which-key"/>
-    </extensions>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
     </extensions>
 
     <actions>

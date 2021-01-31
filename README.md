@@ -1,6 +1,6 @@
 # IDEA-Which-Key
 
-[IdeaVim](https://github.com/JetBrains/ideavim) extension that displays available keybindings in a popup
+[IdeaVim](https://github.com/JetBrains/ideavim) extension that displays available keybindings in a popup similar to [vim-which-key](https://github.com/liuchengxu/vim-which-key)
 
 ![idea which key](/assets/idea_which_key.gif)
 
@@ -18,7 +18,7 @@ Install the jar in Intellij via *File -> Settings -> Plugins -> Install Plugin f
 
 ### Activation
 
-Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc`:
+Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc` file:
 
 ```text
 set which-key
