@@ -13,6 +13,18 @@
     </p>
     ]]></description>
 
+    <change-notes><![CDATA[
+    <p>
+        Initial release of the plugin.
+    </p>
+    <ul>
+        <li>Display available key bindings within a popup</li>
+        <li>Configure displayed descriptions</li>
+    </ul>
+    ]]></change-notes>
+
+    <version>0.1</version>
+
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
 
