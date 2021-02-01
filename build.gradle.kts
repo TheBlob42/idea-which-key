@@ -31,7 +31,5 @@ intellij {
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
-    changeNotes("""
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>""")
+
 }
