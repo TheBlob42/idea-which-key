@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/jetbrains/plugin/v/15976-idea-which-key.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/15976-idea-which-key)
+
 # IDEA-Which-Key
 
 [IdeaVim](https://github.com/JetBrains/ideavim) extension that displays available keybindings in a popup similar to [vim-which-key](https://github.com/liuchengxu/vim-which-key)
@@ -5,6 +7,12 @@
 ![idea which key](/assets/idea_which_key.gif)
 
 ## Installation
+
+### JetBrains Marketplace
+
+Install the plugin from the official [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15976-idea-which-key)
+
+Withing Intellij go to *File -> Settings -> Plugins -> Marketplace* search for "Idea Which Key" and click on *Install*
 
 ### Manual Installation
 
@@ -47,7 +55,7 @@ let g:WhichKeyDesc_buffer        = "<leader>b  +Buffer"
 
 ![configured popup](/assets/popup_configured.png)
 
-Every variable's name has to start with `g:WhichKeyDesc_` in order to be recognized by the plugin. The rest of the variable name can be set to whatever fits best with you. For the value of each variable use the right-hand side of the mapping followed by at least one space or tab characters and finished with the description string you want to be used. 
+Every variable's name has to start with `g:WhichKeyDesc_` in order to be recognized by the plugin. The rest of the variable name can be set to whatever fits best with you. For the value of each variable use the right-hand side of the mapping followed by at least one space or tab characters and finished with the description string you want to be displayed. 
 
 Or if you prefer it in regular expressions:
 
