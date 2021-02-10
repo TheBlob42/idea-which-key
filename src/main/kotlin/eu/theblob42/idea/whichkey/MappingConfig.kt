@@ -10,7 +10,7 @@ import javax.swing.KeyStroke
 
 object MappingConfig {
 
-    private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<MappingSequence, String>>()
+    private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<MappingSequence, Mapping>>()
     private val whichKeyDescriptions: List<String>
 
     init {
@@ -115,14 +115,15 @@ object MappingConfig {
         for (keyStroke in keySequence) {
             tmpSequence.add(keyStroke)
 
+            val isPrefix = tmpSequence.size != keySequence.size
             val description = getWhichKeyDescription(tmpSequence)
-                ?: if (tmpSequence.size == keySequence.size) {
+                ?: if (!isPrefix) {
                     // add the description for the last element of the sequence
                     if (presentableString.isNotBlank()) presentableString else "No description"
                 } else {
                     "Prefix"
                 }
-            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), description)
+            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), Mapping(isPrefix, description))
         }
     }
 
@@ -167,9 +168,9 @@ object MappingConfig {
      *
      * @param mode The current [MappingMode]
      * @param keyStrokes The [List] of pressed [KeyStroke]s
-     * @return A [List] with all relevant mappings (default: empty list)
+     * @return A [List] of [Pair]s with the next key and corresponding [Mapping] (default: empty list)
      */
-    fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<String> {
+    fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
         // search nested mappings for the "exact" key stroke sequence
         val nestedMappings = extractNestedMappings(mode, keyStrokes).toMutableList()
 
@@ -198,14 +199,6 @@ object MappingConfig {
         }
 
         return nestedMappings
-            // sort all mappings alphabetically by there key
-            .sortedBy { it.first }
-            .map { (key, desc) ->
-                "${key} -> ${desc}"
-                    // escape angle brackets for usage in HTML
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;")
-            }
     }
 
     /**
@@ -215,9 +208,9 @@ object MappingConfig {
      * @param keyStrokes The [List] of pressed [KeyStroke]s
      * @return A [List] of [Pair]<String, String> describing the extracted nested mappings.
      * The first value is the next key to press.
-     * The second value is the mapping description.
+     * The second value is the corresponding [Mapping].
      */
-    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, String>> {
+    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
         val typedSequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
 
         return mappingsPerMode[mode]?.entries

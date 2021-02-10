@@ -34,6 +34,8 @@ set which-key
 
 ## Customization
 
+### Descriptions
+
 If no custom descriptions are defined, the right-hand side of all mappings will be displayed:
 
 ![default popup](/assets/popup_default.png)
@@ -74,3 +76,20 @@ If you are familiar with [vim-which-key](https://github.com/liuchengxu/vim-which
 Due to this limitation and the lack of any more convenient data types (array, list, dictionary, etc.) there is currently no "nicer" way of handling custom descriptions.
 
 > As of writing the current versions are Intellij 2020.3 and IdeaVim 0.64
+
+### Appearance
+
+You can configure the appearance of certain UI elements by setting the following options:
+
+| Variable                  | Description                            | Values                                                                      | Default Value |
+|---------------------------|----------------------------------------|-----------------------------------------------------------------------------|---------------|
+| `g:WhichKey_Divider`      | String to separate key and description | any string                                                                  | ` → `         |
+| `g:WhichKey_KeyStyle`     | Font style for the keys                | `bold`, `italic`, `none`                                                    | `bold`        |
+| `g:WhichKey_KeyColor`     | Font color for the keys                | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `default`     |
+| `g:Whichkey_PrefixStyle`  | Font style for the prefixes            | `bold`, `italic`, `none`                                                    | `none`        |
+| `g:Whichkey_PrefixColor`  | Font color for the prefixes            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `keyword`     |
+| `g:Whichkey_CommandStyle` | Font style for the commands            | `bold`, `italic`, `none`                                                    | `none`        |
+| `g:Whichkey_CommandColor` | Font color for the commands            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `default`     |
+
+¹`default`: the default foreground color of the currently used theme  
+²`keyword`: the color for "keywords" of the currently used theme

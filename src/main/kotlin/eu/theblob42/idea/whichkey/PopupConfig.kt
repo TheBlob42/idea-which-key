@@ -45,13 +45,14 @@ object PopupConfig {
      * @param ideFrame The [JFrame] to attach the popup to
      * @param nestedMappings A [List] of nested mappings to display
      */
-    fun showPopup(ideFrame: JFrame, nestedMappings: List<String>) {
+    fun showPopup(ideFrame: JFrame, nestedMappings: List<Pair<String, Mapping>>) {
         if (nestedMappings.isEmpty()) {
             return
         }
 
         val frameWidth = ideFrame.width
-        val maxString: String = nestedMappings.maxByOrNull { it.length }!! // we have manually checked that nestedMappings is not empty
+        // check for the longest string without HTML tags or styling (we have manually checked that 'nestedMappings' is not empty)
+        val maxString: String = nestedMappings.maxByOrNull { FormatConfig.formatRawMapping(it).length }!!.let { FormatConfig.formatRawMapping(it) }
         /*
          * there might be a better way to measure the pixel width of a given String than using a JLabel
          * so far this method has worked quite well and since I'm missing a better alternative this stays for now
@@ -62,7 +63,10 @@ object PopupConfig {
             if (it < 1) 1 else it
         }
         val elementsPerColumn = ceil(nestedMappings.size / possibleColumns.toDouble()).toInt()
-        val windowedMappings = nestedMappings.windowed(elementsPerColumn, elementsPerColumn, true)
+        val windowedMappings = FormatConfig.formatMappings(
+            // TODO implement other sort options
+            nestedMappings.sortedBy { it.first }
+        ).windowed(elementsPerColumn, elementsPerColumn, true)
 
         // to properly align the columns within HTML use a table with fixed with cells
         val mappingsStringBuilder = StringBuilder()
