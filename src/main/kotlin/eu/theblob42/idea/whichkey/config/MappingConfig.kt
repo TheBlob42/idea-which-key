@@ -218,12 +218,12 @@ object MappingConfig {
 
         return mappingsPerMode[mode]?.entries
             ?.filter {
-                // only mappings which start with the same prefix
-                val samePrefix = it.key.sequence.startsWith(typedSequence)
                 // only mappings which are direct children (length + 1)
-                val directChild = it.key.keyStrokes.size == keyStrokes.size.inc()
-                // filter for multiple checks at once to avoid unnecessary iterations because of multiple '.filter' calls
-                samePrefix && directChild
+                it.key.keyStrokes.size == keyStrokes.size.inc()
+            }
+            ?.filter {
+                // only mappings which start with the same prefix sequence
+                it.key.keyStrokes.subList(0, keyStrokes.size) == keyStrokes
             }
             ?.map {
                 // only display the next key to press, instead of the whole sequence
