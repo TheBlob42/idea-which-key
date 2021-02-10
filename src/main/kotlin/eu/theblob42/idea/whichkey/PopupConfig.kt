@@ -50,7 +50,11 @@ object PopupConfig {
             return
         }
 
-        val frameWidth = ideFrame.width
+        /*
+         * the factor 0.65 was found by experimenting and comparing result lengths pixel by pixel
+         * it might be erroneous and could change in the future
+         */
+        val frameWidth = (ideFrame.width * 0.65).toInt()
         // check for the longest string without HTML tags or styling (we have manually checked that 'nestedMappings' is not empty)
         val maxString: String = nestedMappings.maxByOrNull { FormatConfig.formatRawMapping(it).length }!!.let { FormatConfig.formatRawMapping(it) }
         /*
@@ -59,9 +63,19 @@ object PopupConfig {
          */
         val maxStringWidth = JLabel(maxString).preferredSize.width
         val possibleColumns = (frameWidth / maxStringWidth).let {
-            // ensure a minimum value of 1 to avoid dividing by zero
-            if (it < 1) 1 else it
+            if (it < 1) {
+                // ensure a minimum value of 1 to avoid dividing by zero
+                1
+            } else if (it > nestedMappings.size) {
+                // always use the full available screen space
+                nestedMappings.size
+            } else {
+                it
+            }
         }
+        // use as much space for every column as possible
+        val columnWidth = frameWidth / possibleColumns
+
         val elementsPerColumn = ceil(nestedMappings.size / possibleColumns.toDouble()).toInt()
         val windowedMappings = FormatConfig.formatMappings(
             // TODO implement other sort options
@@ -76,7 +90,7 @@ object PopupConfig {
             for (column in windowedMappings) {
                 val entry = column.getOrNull(i)
                 if (entry != null) {
-                    mappingsStringBuilder.append("<td width=\"$maxStringWidth\">$entry</td>")
+                    mappingsStringBuilder.append("<td width=\"${columnWidth}px\">$entry</td>")
                 }
             }
             mappingsStringBuilder.append("</tr>")
@@ -88,7 +102,7 @@ object PopupConfig {
         // the extra variable 'newWhichKeyBalloon' is needed so that the currently displayed Balloon
         // can be hidden in case the 'displayBalloonJob' gets canceled before execution
         val newWhichKeyBalloon = JBPopupFactory.getInstance()
-            .createHtmlTextBalloonBuilder(mappingsStringBuilder.toString(), null, EditorColorsManager.getInstance().globalScheme.defaultBackground, null)
+            .createHtmlTextBalloonBuilder(mappingsStringBuilder.toString(), null, EditorColorsManager.getInstance().schemeForCurrentUITheme.defaultBackground, null)
             .setAnimationCycle(10) // shorten animation time
             .setFadeoutTime(fadeoutTime)
             .createBalloon()
