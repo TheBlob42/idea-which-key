@@ -7,6 +7,8 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.action.VimShortcutKeyAction
 import com.maddyhome.idea.vim.command.CommandState
+import eu.theblob42.idea.whichkey.config.MappingConfig
+import eu.theblob42.idea.whichkey.config.PopupConfig
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 

@@ -1,4 +1,4 @@
-package eu.theblob42.idea.whichkey
+package eu.theblob42.idea.whichkey.model
 
 /**
  * @param prefix Indicator if this mapping is a prefix or an actual command

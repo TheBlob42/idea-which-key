@@ -1,10 +1,11 @@
-package eu.theblob42.idea.whichkey
+package eu.theblob42.idea.whichkey.config
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
 import com.maddyhome.idea.vim.option.OptionsManager
+import eu.theblob42.idea.whichkey.model.Mapping
 import kotlinx.coroutines.*
 import javax.swing.JFrame
 import javax.swing.JLabel
@@ -56,7 +57,9 @@ object PopupConfig {
          */
         val frameWidth = (ideFrame.width * 0.65).toInt()
         // check for the longest string without HTML tags or styling (we have manually checked that 'nestedMappings' is not empty)
-        val maxString: String = nestedMappings.maxByOrNull { FormatConfig.formatRawMapping(it).length }!!.let { FormatConfig.formatRawMapping(it) }
+        val maxString: String = nestedMappings.maxByOrNull { FormatConfig.formatRawMapping(it).length }!!.let {
+            FormatConfig.formatRawMapping(it)
+        }
         /*
          * there might be a better way to measure the pixel width of a given String than using a JLabel
          * so far this method has worked quite well and since I'm missing a better alternative this stays for now

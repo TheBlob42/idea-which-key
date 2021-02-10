@@ -7,6 +7,8 @@ import com.intellij.openapi.editor.actionSystem.TypedActionHandlerEx
 import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.command.CommandState
+import eu.theblob42.idea.whichkey.config.MappingConfig
+import eu.theblob42.idea.whichkey.config.PopupConfig
 import javax.swing.KeyStroke
 
 class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActionHandler): TypedActionHandlerEx {

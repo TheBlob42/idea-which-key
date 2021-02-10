@@ -1,10 +1,13 @@
-package eu.theblob42.idea.whichkey
+package eu.theblob42.idea.whichkey.config
 
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
 import com.maddyhome.idea.vim.helper.StringHelper
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
+import eu.theblob42.idea.whichkey.model.Mapping
+import eu.theblob42.idea.whichkey.model.MappingSequence
+import eu.theblob42.idea.whichkey.WhichKeyExtension
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 

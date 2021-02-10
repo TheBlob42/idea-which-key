@@ -1,8 +1,9 @@
-package eu.theblob42.idea.whichkey
+package eu.theblob42.idea.whichkey.config
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
+import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.Color
 
 object FormatConfig {

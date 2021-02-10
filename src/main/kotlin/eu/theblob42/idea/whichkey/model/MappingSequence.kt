@@ -1,5 +1,6 @@
-package eu.theblob42.idea.whichkey
+package eu.theblob42.idea.whichkey.model
 
+import eu.theblob42.idea.whichkey.config.MappingConfig
 import javax.swing.KeyStroke
 
 /**
