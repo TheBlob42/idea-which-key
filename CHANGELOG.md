@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Improve the usage of the available space for the popup
 - By default display keys in bold and prefixes in the current theme's keyword color
 
 ## 0.1 - 2021-01-31
