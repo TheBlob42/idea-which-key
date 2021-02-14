@@ -6,49 +6,138 @@ import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
 import com.maddyhome.idea.vim.helper.StringHelper
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import eu.theblob42.idea.whichkey.model.Mapping
-import eu.theblob42.idea.whichkey.model.MappingSequence
-import eu.theblob42.idea.whichkey.WhichKeyExtension
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
 object MappingConfig {
 
-    private val mappingsPerMode = mutableMapOf<MappingMode, MutableMap<MappingSequence, Mapping>>()
-    private val whichKeyDescriptions: List<String>
+    private const val DEFAULT_LEADER_KEY = "\\"
+    private val DESCRIPTION_REGEX = Regex("(.*?)[ \\t]+(.*)")
 
-    init {
-        // check for the defined leader key, default is "\"
-        // for reference check StringHelper.parseMapLeader(String s)
-        val leaderKey = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]?.let {
-            when (it) {
-                is String -> it.map { keyToString(it, 0, 0) }.joinToString(separator = "")
-                else -> "\\"
-            }
-        } ?: "\\"
-        // extract all WhichKey description variables from the '.ideavimrc' file
-        whichKeyDescriptions = VimScriptGlobalEnvironment.getInstance().variables.entries
+
+    /**
+     * Return all nested mappings which are direct children of the given key sequence
+     * The result are [Pair]s of the next key to press and a corresponding description
+     *
+     * Consider the following mappings:
+     *
+     * - `nnoremap ggab :action 1`
+     * - `nnoremap ggc  :action 2`
+     *
+     * Calling [getNestedMappings] with the keystroke sequence "gg" would return:
+     *
+     * - "a" -> `prefix`
+     * - "c" -> :action 2
+     *
+     * @param mode The corresponding [MappingMode]
+     * @param keyStrokes The [List] of typed [KeyStroke]s
+     * @return A [List] of [Pair]s with the next key to press and the corresponding [Mapping] (default: empty list)
+     */
+    fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
+        /*
+         * extract all custom WhichKey descriptions from the .ideavimrc file
+         * replace <leader> with the actual mapped value
+         */
+        val leaderKey = when (val leader = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]) {
+            null -> DEFAULT_LEADER_KEY
+            is String -> leader.map { keyToString(it, 0, 0) }.joinToString(separator = "")
+            else -> DEFAULT_LEADER_KEY
+        }
+        val whichKeyDescriptions = VimScriptGlobalEnvironment.getInstance().variables.entries
             .asSequence()
             .filter { it.key.startsWith("g:WhichKeyDesc_") }
             .map { it.value.toString() }
             .map { it.replace("<leader>", leaderKey) }
-            .toList()
-
-        // retrieve all mappings for all modes and save them
-        for (mode in enumValues<MappingMode>()) {
-            val keyMapping = VimPlugin.getKey().getKeyMapping(mode)
-            for (keyStrokes in keyMapping) {
-                // Check for fake <Plug> mappings and ignore them here
-                // Check 'VimExtensionFacade.putExtensionHandlerMapping(...)' for more information
-                val code = keyStrokes[0].keyCode
-                if (code == KeyEvent.CHAR_UNDEFINED.toInt().dec() // VK_PLUG constant is private
-                    || code == StringHelper.VK_ACTION) {
-                    continue
+            .mapNotNull {
+                DESCRIPTION_REGEX.find(it)?.groupValues?.let { groups ->
+                    Pair(groups[1], groups[2])
                 }
+            }
+            .toMap()
 
-                val description = keyMapping[keyStrokes]!!.getPresentableString()
-                addMapping(mode, keyStrokes, description)
+        // we use a Map to make sure every key is unique in the result
+        val nestedMappings = mutableMapOf<String, Mapping>()
+
+        // check mappings for the exact key sequence
+        nestedMappings.putAll(extractNestedMappings(mode, keyStrokes, whichKeyDescriptions))
+
+        // check if parts of the typed key sequence map to other key sequences,
+        // replace them and search for nested mappings of the resulting sequence
+        var replacedKeyStrokes = mutableListOf<KeyStroke>()
+        for (keyStroke in keyStrokes) {
+            replacedKeyStrokes.add(keyStroke)
+            val mapping = VimPlugin.getKey().getKeyMapping(mode)[replacedKeyStrokes]
+
+            if (mapping != null && mapping is ToKeysMappingInfo) {
+                replacedKeyStrokes = mapping.toKeys.toMutableList()
             }
         }
+
+        if (replacedKeyStrokes != keyStrokes) {
+            nestedMappings.putAll(extractNestedMappings(mode, replacedKeyStrokes, whichKeyDescriptions))
+        }
+
+        // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
+        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
+        if (sequenceMapping != null
+            && sequenceMapping is ToKeysMappingInfo
+            && sequenceMapping.toKeys != replacedKeyStrokes){
+            nestedMappings.putAll(extractNestedMappings(mode, sequenceMapping.toKeys,whichKeyDescriptions))
+        }
+
+        return nestedMappings.map {
+            Pair(it.key, it.value)
+        }
+    }
+
+    /**
+     * Helper function to avoid duplicate code within [getNestedMappings]
+     *
+     * @param mode The [MappingMode]
+     * @param keyStrokes The [List] of [KeyStroke]s to check for
+     * @param whichKeyDescriptions All custom descriptions from the .ideavimrc file
+     * @return A [Map] combining the next keys to press with their corresponding [Mapping]s
+     */
+    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>, whichKeyDescriptions: Map<String, String>): Map<String, Mapping> {
+        val keyMappings = VimPlugin.getKey().getKeyMapping(mode)
+        val nestedMappings = mutableMapOf<String, Mapping>()
+        for (mappedKeyStrokes in keyMappings) {
+            // Check for "fake" <Plug> mappings and ignore them
+            // Check 'VimExtensionFacade.putExtensionHandlerMapping(...)' for more information
+            val vkPlug = KeyEvent.CHAR_UNDEFINED.toInt().dec() // the "original" VK_PLUG constant is private
+            val code = mappedKeyStrokes[0].keyCode
+            if (code == vkPlug || code == StringHelper.VK_ACTION) {
+                continue
+            }
+
+            // only consider sequences that are longer than the typed sequence
+            if (mappedKeyStrokes.size <= keyStrokes.size) {
+                continue
+            }
+
+            // only consider sequences which start with the typed sequence
+            if (mappedKeyStrokes.subList(0, keyStrokes.size) != keyStrokes) {
+                continue
+            }
+
+            // if there is already an entry for the next key, skip the rest
+            val nextKey = keyToString(mappedKeyStrokes[keyStrokes.size])
+            if (nestedMappings[nextKey] != null) {
+                continue
+            }
+
+            // check if there is a custom description for the next key press
+            val sequenceString = mappedKeyStrokes.subList(0, keyStrokes.size.inc()).joinToString(separator = "") {
+                keyToString(it)
+            }
+            val isPrefix = mappedKeyStrokes.size > keyStrokes.size.inc()
+            val description = whichKeyDescriptions[sequenceString]
+                ?: if (isPrefix) "Prefix" else keyMappings[mappedKeyStrokes]!!.getPresentableString()
+
+            nestedMappings[nextKey] = Mapping(isPrefix, description)
+        }
+
+        return nestedMappings
     }
 
     /**
@@ -69,7 +158,7 @@ object MappingConfig {
      * @param modifiers The modifier code for the pressed key combination (0 if not applicable)
      * @return String representation of the pressed key or key combination
      */
-    fun keyToString(keyChar: Char, keyCode: Int, modifiers: Int): String {
+    private fun keyToString(keyChar: Char, keyCode: Int, modifiers: Int): String {
         // special case for " "
         if (keyChar == ' ') {
             return "<Space>"
@@ -99,137 +188,5 @@ object MappingConfig {
         }
 
         return if (key.length > 1) "<$key>" else key
-    }
-
-    /**
-     * Add a description for a key sequence
-     * Automatically create entries for all prefix sequences (if they do not exist yet)
-     * If the description is blank uses a default value
-     *
-     * @param mode The [MappingMode] to add the sequence to
-     * @param keySequence The [List] of [KeyStroke]s representing the sequence
-     * @param presentableString The default description for the action to add
-     * (only used if there is no custom description in the `.ideavimrc` file)
-     */
-    private fun addMapping(mode: MappingMode, keySequence: List<KeyStroke>, presentableString: String) {
-        val mappings = mappingsPerMode.getOrPut(mode) { mutableMapOf() }
-
-        val tmpSequence = mutableListOf<KeyStroke>()
-        for (keyStroke in keySequence) {
-            tmpSequence.add(keyStroke)
-
-            val isPrefix = tmpSequence.size != keySequence.size
-            val description = getWhichKeyDescription(tmpSequence)
-                ?: if (!isPrefix) {
-                    // add the description for the last element of the sequence
-                    if (presentableString.isNotBlank()) presentableString else "No description"
-                } else {
-                    "Prefix"
-                }
-            mappings.putIfAbsent(MappingSequence(tmpSequence.toList()), Mapping(isPrefix, description))
-        }
-    }
-
-    /**
-     * Check if there is a custom description for the given key stroke sequence defined in the `.ideavimrc`  file
-     *
-     * @param keySequence A [List] of [KeyStroke]s to check
-     * @return Custom description if there is one. In case of more than one custom description
-     * in the configuration, log the sequence and return the first value found
-     */
-    private fun getWhichKeyDescription(keySequence: List<KeyStroke>): String? {
-        val sequenceString = keySequence.joinToString(separator = "") { keyToString(it) }
-        val sequenceRegex = Regex("${Regex.escape(sequenceString)}[ \\t]+(.*)")
-
-        val filteredDescriptions = whichKeyDescriptions
-            .filter { it.matches(sequenceRegex) }
-            .mapNotNull {
-                sequenceRegex.find(it)?.groupValues?.get(1)
-            }
-
-        if (filteredDescriptions.size > 1) {
-            WhichKeyExtension.logger.warn("Found more than one custom WhichKey descriptions for sequence: $sequenceString")
-        }
-
-        return filteredDescriptions.firstOrNull()
-    }
-
-    /**
-     * Return all nested mappings which are direct children of the given prefix key sequence
-     *
-     * Consider the following sequences are mapped (for `MappingMode.NORMAL`):
-     *
-     * `g, gw, gws, gb, gbb, gbd, gq`
-     *
-     * The call `getNestedMappings(MappingMode.NORMAL, "g")` would return the following sequences:
-     *
-     * `gw, gb, gq`
-     *
-     * The actual entries contain the key to press and the corresponding description:
-     *
-     * `w ⟶ Prefix`
-     *
-     * @param mode The current [MappingMode]
-     * @param keyStrokes The [List] of pressed [KeyStroke]s
-     * @return A [List] of [Pair]s with the next key and corresponding [Mapping] (default: empty list)
-     */
-    fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
-        // search nested mappings for the "exact" key stroke sequence
-        val nestedMappings = extractNestedMappings(mode, keyStrokes).toMutableList()
-
-        // check if parts of the typed key sequence map to other key sequences,
-        // replace them and search for nested mappings of the resulting sequence
-        var replacedKeyStrokes = mutableListOf<KeyStroke>()
-        for (keyStroke in keyStrokes) {
-            replacedKeyStrokes.add(keyStroke)
-            val mapping = VimPlugin.getKey().getKeyMapping(mode)[replacedKeyStrokes]
-
-            if (mapping != null && mapping is ToKeysMappingInfo) {
-                replacedKeyStrokes = mapping.toKeys.toMutableList()
-            }
-        }
-
-        if (replacedKeyStrokes != keyStrokes) {
-            nestedMappings.addAll(extractNestedMappings(mode, replacedKeyStrokes))
-        }
-
-        // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
-        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
-        if (sequenceMapping != null
-            && sequenceMapping is ToKeysMappingInfo
-            && sequenceMapping.toKeys != replacedKeyStrokes){
-            nestedMappings.addAll(extractNestedMappings(mode, sequenceMapping.toKeys))
-        }
-
-        return nestedMappings
-    }
-
-    /**
-     * Helper function to avoid duplicate code within [getNestedMappings]
-     *
-     * @param mode The current [MappingMode]
-     * @param keyStrokes The [List] of pressed [KeyStroke]s
-     * @return A [List] of [Pair]<String, String> describing the extracted nested mappings.
-     * The first value is the next key to press.
-     * The second value is the corresponding [Mapping].
-     */
-    private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
-        val typedSequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
-
-        return mappingsPerMode[mode]?.entries
-            ?.filter {
-                // only mappings which are direct children (length + 1)
-                it.key.keyStrokes.size == keyStrokes.size.inc()
-            }
-            ?.filter {
-                // only mappings which start with the same prefix sequence
-                it.key.keyStrokes.subList(0, keyStrokes.size) == keyStrokes
-            }
-            ?.map {
-                // only display the next key to press, instead of the whole sequence
-                val key = it.key.sequence.replaceFirst(typedSequence, "")
-                Pair(key, it.value)
-            }
-            ?: listOf()
     }
 }

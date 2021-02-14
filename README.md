@@ -34,6 +34,10 @@ set which-key
 
 ## Customization
 
+You can customize several aspects of IDEA-Which-Key via variables in your `.ideavimrc`
+
+> Use the `:source ~/.ideavimrc` command to reload your config file
+
 ### Descriptions
 
 If no custom descriptions are defined, the right-hand side of all mappings will be displayed:
