@@ -81,6 +81,20 @@ Due to this limitation and the lack of any more convenient data types (array, li
 
 > As of writing the current versions are Intellij 2020.3 and IdeaVim 0.64
 
+### VIM Actions
+
+By default Idea-Which-Key will only display key mappings which are defined in the `.ideavimrc` file. If you wish it can also display default VIM actions like `gg`, `zz`, `zt`, `<C-w>k`, etc. in the popup. For this you need to set the following variable within your `.ideavimrc`:
+
+```vim
+let g:WhichKey_ShowVimActions = "true"
+```
+
+If you wish you can also add custom descriptions for VIM Actions the same way as for other key mappings:
+
+```vim
+let g:WhichKeyDesc_goto_top = "gg   goto first line"
+```
+
 ### Appearance
 
 You can configure the appearance of certain UI elements by setting the following options:

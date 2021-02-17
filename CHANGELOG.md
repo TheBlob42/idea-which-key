@@ -4,10 +4,13 @@
 
 ### Added
 
+- Display default VIM actions (`gg`, `zt`, `<C-w>k`, etc.) in the popup.
+  - This feature can be toggled on or off (default: off)
 - Make the appearance of keys, prefixes, command descriptions and the divider configurable
 
 ### Changed
 
+- minimum IdeaVIM version is now `0.65`
 - Dismantle key mapping and description caching
   - Changes are reflected on `.ideavimrc` reload, no restart of Intellij required anymore
 - Fixed prefix comparison (issue with the '<' character)

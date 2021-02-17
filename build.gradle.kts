@@ -23,11 +23,11 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = "2020.1"
+    version = "2020.2"
     // do not patch plugin.xml since/until build with values inferred from the intellij version
     updateSinceUntilBuild = false
 
-    setPlugins("IdeaVIM:0.62")
+    setPlugins("IdeaVIM:0.65")
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
