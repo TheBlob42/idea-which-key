@@ -5,25 +5,23 @@
     <idea-version since-build="201"/>
 
     <description><![CDATA[
-    <p>
-        <a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup
-    </p>
-    <p>
-        For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a>
-    </p>
+    <p><a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup</p>
+    <p>For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a></p>
     ]]></description>
 
     <change-notes><![CDATA[
     <p>
-        Initial release of the plugin.
+        <strong>0.2</strong>
     </p>
     <ul>
-        <li>Display available key bindings within a popup</li>
-        <li>Configure displayed descriptions</li>
+        <li>Display default VIM actions ('gg', 'zt', etc.) if configured</li>
+        <li>Dismantle the key mapping and description caching</li>
+        <li>Improve usage of the available space for the popup</li>
+        <li>Format options for several UI elements (key, description, prefix & divider)</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.1</version>
+    <version>0.2</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>

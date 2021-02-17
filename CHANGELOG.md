@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2 - 2021-02-17
+
 ### Added
 
 - Display default VIM actions (`gg`, `zt`, `<C-w>k`, etc.) in the popup.
