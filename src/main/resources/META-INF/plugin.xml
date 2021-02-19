@@ -5,8 +5,25 @@
     <idea-version since-build="201"/>
 
     <description><![CDATA[
-    <p><a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup</p>
-    <p>For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a></p>
+    <h2>
+    <a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup.
+    </h2>
+
+    <h3>Usage</h3>
+    <ul>
+        <li>Activate the plugin in your .ideavimrc file with `set which-key`</li>
+        <li>Either disable the timeout option or increase the timeoutlen (default: 1000ms)
+            <ul>
+                <li>`set notimeout`</li>
+                <li>`set timeoutlen=5000`</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h3>More options</h3>
+    <p>
+    For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a>.
+    </p>
     ]]></description>
 
     <change-notes><![CDATA[

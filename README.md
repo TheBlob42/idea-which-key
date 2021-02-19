@@ -26,11 +26,24 @@ Install the jar in Intellij via *File -> Settings -> Plugins -> Install Plugin f
 
 ### Activation
 
-Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc` file:
+Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc` file  
+Furthermore you should either disable the `timeout` option or increase the value for `timeoutlen`
 
 ```text
 set which-key
+
+" disable the timeout option
+set notimeout
+
+" increase the timeoutlen (default: 1000)
+set timeoutlen = 5000
 ```
+
+#### Explanation: `timeout` & `timeoutlen`
+
+By default (Idea)VIM will wait for `timeoutlen` milliseconds after each key press of any unfinished mapping sequence before it cancels the whole sequence and processes each key press individually one after another. To match this behavior the IDEA-Which-Key popup will only be visible till a mapping sequence is either completed or canceled. Without any adaptions the popup is only displayed for a brief moment and will not be very useful. Therefore you should definitively modify `timout` or `timeoutlen` according to your preferences.
+
+> IdeaVIM does not differentiate between `timeout`|`timeoutlen` and `ttimeout`|`ttimeoutlen`
 
 ## Customization
 
