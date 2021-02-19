@@ -16,12 +16,6 @@ object PopupConfig {
     private var currentBalloon: Balloon? = null
     private var displayBalloonJob: Job? = null
 
-    private val fadeoutTime = if (OptionsManager.timeout.value) {
-        OptionsManager.timeoutlen.value().toLong()
-    } else {
-        0L
-    }
-
     /**
      * Either cancel the display job or hide the current popup
      */
@@ -101,6 +95,11 @@ object PopupConfig {
         mappingsStringBuilder.append("</table>")
 
         val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
+        val fadeoutTime = if (OptionsManager.timeout.value) {
+            OptionsManager.timeoutlen.value().toLong()
+        } else {
+            0L
+        }
 
         // the extra variable 'newWhichKeyBalloon' is needed so that the currently displayed Balloon
         // can be hidden in case the 'displayBalloonJob' gets canceled before execution
