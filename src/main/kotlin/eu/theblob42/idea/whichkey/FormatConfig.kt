@@ -24,6 +24,14 @@ object FormatConfig {
         else -> escapeForHtml(div)
     }
 
+    private const val DEFAULT_FONT_FAMILY = "monospace" // the alignment works best with a monospaced font
+    private val fontFamily: String
+    get() = when (val font = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_FontFamily"]) {
+        null -> DEFAULT_FONT_FAMILY
+        !is String -> DEFAULT_FONT_FAMILY
+        else -> font
+    }
+
     // configuration variables for the keys
     private val keyColor: String
     get() = when (val color = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_KeyColor"]) {
@@ -123,7 +131,7 @@ object FormatConfig {
      * @return The built format string
      */
     private fun buildHtmlFormatString(tagName: String, color: String): String {
-        return "<$tagName style=\"color:$color;\">%s</$tagName>"
+        return "<$tagName style=\"font-family: $fontFamily; color:$color;\">%s</$tagName>"
     }
 
     /**
