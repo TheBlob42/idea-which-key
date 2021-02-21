@@ -117,10 +117,10 @@ You can configure the appearance of certain UI elements by setting the following
 | `g:WhichKey_Divider`      | String to separate key and description | any string                                                                  | ` → `         |
 | `g:WhichKey_KeyStyle`     | Font style for the keys                | `bold`, `italic`, `none`                                                    | `bold`        |
 | `g:WhichKey_KeyColor`     | Font color for the keys                | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `default`     |
-| `g:Whichkey_PrefixStyle`  | Font style for the prefixes            | `bold`, `italic`, `none`                                                    | `none`        |
-| `g:Whichkey_PrefixColor`  | Font color for the prefixes            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `keyword`     |
-| `g:Whichkey_CommandStyle` | Font style for the commands            | `bold`, `italic`, `none`                                                    | `none`        |
-| `g:Whichkey_CommandColor` | Font color for the commands            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `default`     |
+| `g:WhichKey_PrefixStyle`  | Font style for the prefixes            | `bold`, `italic`, `none`                                                    | `none`        |
+| `g:WhichKey_PrefixColor`  | Font color for the prefixes            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `keyword`     |
+| `g:WhichKey_CommandStyle` | Font style for the commands            | `bold`, `italic`, `none`                                                    | `none`        |
+| `g:WhichKey_CommandColor` | Font color for the commands            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.) | `default`     |
 
 ¹`default`: the default foreground color of the currently used theme  
 ²`keyword`: the color for "keywords" of the currently used theme
