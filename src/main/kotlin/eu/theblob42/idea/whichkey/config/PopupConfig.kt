@@ -8,7 +8,6 @@ import com.maddyhome.idea.vim.option.OptionsManager
 import eu.theblob42.idea.whichkey.model.Mapping
 import kotlinx.coroutines.*
 import javax.swing.JFrame
-import javax.swing.JLabel
 import kotlin.math.ceil
 
 object PopupConfig {
@@ -51,14 +50,9 @@ object PopupConfig {
          */
         val frameWidth = (ideFrame.width * 0.65).toInt()
         // check for the longest string without HTML tags or styling (we have manually checked that 'nestedMappings' is not empty)
-        val maxString: String = nestedMappings.maxByOrNull { FormatConfig.formatRawMapping(it).length }!!.let {
-            FormatConfig.formatRawMapping(it)
-        }
-        /*
-         * there might be a better way to measure the pixel width of a given String than using a JLabel
-         * so far this method has worked quite well and since I'm missing a better alternative this stays for now
-         */
-        val maxStringWidth = JLabel(maxString).preferredSize.width
+        val maxMapping = nestedMappings.maxByOrNull { FormatConfig.calcRawMappingWidth(it) }!!
+        // calculate the pixel width of the longest mapping string (with styling)
+        val maxStringWidth = FormatConfig.calcFormattedMappingWidth(maxMapping)
         val possibleColumns = (frameWidth / maxStringWidth).let {
             if (it < 1) {
                 // ensure a minimum value of 1 to avoid dividing by zero
