@@ -116,6 +116,7 @@ You can configure the appearance of certain UI elements by setting the following
 |---------------------------|----------------------------------------|----------------------------------------------------------------------------------------------|---------------|
 | `g:WhichKey_Divider`      | String to separate key and description | any string                                                                                   | ` → `         |
 | `g:WhichKey_FontFamily`   | Font to use for the popup              | CSS `font-family` (see [examples](https://www.w3schools.com/cssref/pr_font_font-family.asp)) | `monospace`   |
+| `g:WhichKey_FontSize`     | Font size for the popup                | Font size in `point` (for example `15`, `22`, etc.)                                          | IDE default³  |
 | `g:WhichKey_KeyStyle`     | Font style for the keys                | `bold`, `italic`, `none`                                                                     | `bold`        |
 | `g:WhichKey_KeyColor`     | Font color for the keys                | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.)                  | `default`     |
 | `g:WhichKey_PrefixStyle`  | Font style for the prefixes            | `bold`, `italic`, `none`                                                                     | `none`        |
@@ -124,4 +125,5 @@ You can configure the appearance of certain UI elements by setting the following
 | `g:WhichKey_CommandColor` | Font color for the commands            | hex code or color keyword<br/>(`default`¹, `keyword`², "red", "blue", etc.)                  | `default`     |
 
 ¹`default`: the default foreground color of the currently used theme  
-²`keyword`: the color for "keywords" of the currently used theme
+²`keyword`: the color for "keywords" of the currently used theme  
+³Uses the IDE default value for the font size (without any configuration this should be `15`)

@@ -5,6 +5,8 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
 import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.Color
+import java.awt.Font
+import javax.swing.JLabel
 
 object FormatConfig {
 
@@ -30,6 +32,14 @@ object FormatConfig {
         null -> DEFAULT_FONT_FAMILY
         !is String -> DEFAULT_FONT_FAMILY
         else -> font
+    }
+
+    private val fontSize: Int // font size in point
+    get() = when (val size = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_FontSize"]) {
+        // get default value from a "basic" JLabel
+        null -> JLabel().font.size
+        !is Int -> JLabel().font.size
+        else -> size
     }
 
     // configuration variables for the keys
@@ -97,32 +107,84 @@ object FormatConfig {
     fun formatMappings(mappings: List<Pair<String, Mapping>>): List<String> {
         return mappings
             .map { (key, mapping) ->
-                val nextKey = String.format(
+                val formattedKey = String.format(
                     buildHtmlFormatString(keyStyle, keyColor),
                     escapeForHtml(key))
-                val description = String.format(
+                val formattedDivider = String.format(
+                    buildHtmlFormatString("span", defaultForegroundColor),
+                    divider)
+                val formattedDescription = String.format(
                     buildHtmlFormatString(
                         if (mapping.prefix) descPrefixStyle else descCommandStyle,
                         if (mapping.prefix) descPrefixColor else descCommandColor
                     ),
                     escapeForHtml(mapping.description))
 
-                "$nextKey$divider$description"
+                "$formattedKey$formattedDivider$formattedDescription"
             }
     }
 
     /**
-     * Format the raw mapping, without HTML tags or style attributes
-     * @param raw A [Pair] of the next key to press and the corresponding [Mapping]
-     * @return The raw mapping [String] without tags or attributes
+     * Calculate the string width (number of characters) without any HTML tags or style attributes for the given [entry]
+     *
+     * @param entry A [Pair] of the next key to press and the corresponding [Mapping] that should be used for the calculation
+     * @return The raw string width (number of characters)
      */
-    fun formatRawMapping(raw: Pair<String, Mapping>): String {
-        return "${raw.first}$divider${raw.second.description}"
+    fun calcRawMappingWidth(entry: Pair<String, Mapping>): Int {
+        val (key, mapping) = entry
+        return "${key}$divider${mapping.description}".length
+    }
+
+    /**
+     * Calculate the pixel width of the given [entry] after formatting it according to the configured
+     * font-family, font-size and font-style for each individual part (key, divider & description).
+     *
+     * The calculated width is not 100% exact but its approximation is very close and from testing only a few pixels of,
+     * which is good enough for our use case.
+     *
+     * @param entry A [Pair] of the next key to press and the corresponding [Mapping] that should be used for the calculation
+     * @return The approximate width of the formatted entry in pixels
+     */
+    fun calcFormattedMappingWidth(entry: Pair<String, Mapping>): Int {
+        val (key, mapping) = entry
+        val keyFont = Font(fontFamily, toFontStyle(keyStyle), fontSize)
+        val dividerFont = Font(fontFamily, Font.PLAIN, fontSize)
+        val descriptionFont = Font(
+            fontFamily,
+            toFontStyle(if (mapping.prefix) descPrefixStyle else descCommandStyle),
+            fontSize)
+
+        val keyLabel = JLabel(key)
+        keyLabel.font = keyFont
+        val keyWidth = keyLabel.preferredSize.width
+
+        val dividerLabel = JLabel(divider)
+        dividerLabel.font = dividerFont
+        val dividerWidth = dividerLabel.preferredSize.width
+
+        val descriptionLabel = JLabel(mapping.description)
+        descriptionLabel.font = descriptionFont
+        val descriptionWidth = descriptionLabel.preferredSize.width
+
+        return keyWidth + dividerWidth + descriptionWidth
     }
 
     // *****************************************************************************************************************
     // ***** UTILITY FUNCTIONS
     // *****************************************************************************************************************
+
+    /**
+     * Convert the given HTML font [tag] into an appropriate [Font] style value
+     * @param tag The HTML tag to convert (e.g. "i", "b")
+     * @return The appropriate constant (e.g. [Font.ITALIC], [Font.BOLD])
+     */
+    private fun toFontStyle(tag: String): Int {
+        return when (tag) {
+            "i" -> Font.ITALIC
+            "b" -> Font.BOLD
+            else -> Font.PLAIN
+        }
+    }
 
     /**
      * Build an HTML string for the usage with [String.format] to add tags and CSS colors
@@ -131,7 +193,7 @@ object FormatConfig {
      * @return The built format string
      */
     private fun buildHtmlFormatString(tagName: String, color: String): String {
-        return "<$tagName style=\"font-family: $fontFamily; color:$color;\">%s</$tagName>"
+        return "<$tagName style=\"font-family: $fontFamily; font-size: ${fontSize}pt; color:$color;\">%s</$tagName>"
     }
 
     /**

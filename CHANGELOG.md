@@ -4,7 +4,7 @@
 
 ### Added
 
-- Make FontFamily configurable
+- Make FontFamily and FontSize configurable
 - Added documentation about `timeout` and `timeoutlen`
 
 ## 0.2 - 2021-02-17
