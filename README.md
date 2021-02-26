@@ -108,6 +108,16 @@ If you wish you can also add custom descriptions for VIM Actions the same way as
 let g:WhichKeyDesc_goto_top = "gg   goto first line"
 ```
 
+### Typed Keys
+
+At the bottom of the popup you can see the keys you have typed so far as well as the current prefix description
+
+You can hide this by adding the following to your `.ideavimrc`:
+
+```vim
+let g:WhichKey_ShowTypedSequence = "false"
+```
+
 ### Appearance
 
 You can configure the appearance of certain UI elements by setting the following options:

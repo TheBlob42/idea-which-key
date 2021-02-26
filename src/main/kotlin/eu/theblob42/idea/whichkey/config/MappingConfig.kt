@@ -15,6 +15,8 @@ import javax.swing.KeyStroke
 
 object MappingConfig {
 
+    const val DEFAULT_PREFIX_LABEL = "Prefix"
+
     private const val DEFAULT_LEADER_KEY = "\\"
     private val DESCRIPTION_REGEX = Regex("(.*?)[ \\t]+(.*)")
 
@@ -81,26 +83,7 @@ object MappingConfig {
      * @return A [List] of [Pair]s with the next key to press and the corresponding [Mapping] (default: empty list)
      */
     fun getNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>): List<Pair<String, Mapping>> {
-        /*
-         * extract all custom WhichKey descriptions from the .ideavimrc file
-         * replace <leader> with the actual mapped value
-         */
-        val leaderKey = when (val leader = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]) {
-            null -> DEFAULT_LEADER_KEY
-            is String -> leader.map { keyToString(it, 0, 0) }.joinToString(separator = "")
-            else -> DEFAULT_LEADER_KEY
-        }
-        val whichKeyDescriptions = VimScriptGlobalEnvironment.getInstance().variables.entries
-            .asSequence()
-            .filter { it.key.startsWith("g:WhichKeyDesc_") }
-            .map { it.value.toString() }
-            .map { it.replace("<leader>", leaderKey) }
-            .mapNotNull {
-                DESCRIPTION_REGEX.find(it)?.groupValues?.let { groups ->
-                    Pair(groups[1], groups[2])
-                }
-            }
-            .toMap()
+        val whichKeyDescriptions = extractWhichKeyDescriptions()
 
         // we use a Map to make sure every key is unique in the result
         val nestedMappings = mutableMapOf<String, Mapping>()
@@ -198,12 +181,51 @@ object MappingConfig {
             }
             val isPrefix = mappedKeyStrokes.size > keyStrokes.size.inc()
             val description = whichKeyDescriptions[sequenceString]
-                ?: if (isPrefix) "Prefix" else defaultDescription
+                ?: if (isPrefix) DEFAULT_PREFIX_LABEL else defaultDescription
 
             nestedMappings[nextKey] = Mapping(isPrefix, description)
         }
 
         return nestedMappings
+    }
+
+    /**
+     * Extract all custom WhichKey descriptions from the .ideavimrc file and replace "leader" with the actual mapped key
+     *
+     * @return [Map] of 'key sequence' to 'custom description'
+     */
+    private fun extractWhichKeyDescriptions(): Map<String, String> {
+        val leaderKey = when (val leader = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]) {
+            null -> DEFAULT_LEADER_KEY
+            is String -> leader.map { keyToString(it, 0, 0) }.joinToString(separator = "")
+            else -> DEFAULT_LEADER_KEY
+        }
+        return VimScriptGlobalEnvironment.getInstance().variables.entries
+            .asSequence()
+            .filter { it.key.startsWith("g:WhichKeyDesc_") }
+            .map { it.value.toString() }
+            .map { it.replace("<leader>", leaderKey) }
+            .mapNotNull {
+                // destructure the regex groups into Pairs
+                DESCRIPTION_REGEX.find(it)?.groupValues?.let { (_, keySequence, description) ->
+                    Pair(keySequence, description)
+                }
+            }
+            .toMap()
+    }
+
+    /**
+     * Return the custom description for the given [keyStrokes] (if any exists)
+     *
+     * This function is currently only called from outside of [MappingConfig]
+     *
+     * @param keyStrokes The key strokes to check
+     * @return The corresponding custom description (if any exists)
+     */
+    fun getWhichKeyDescription(keyStrokes: List<KeyStroke>): String? {
+        val whichKeyDescriptions = extractWhichKeyDescriptions()
+        val keySequence = keyStrokes.joinToString(separator = "") { keyToString(it) }
+        return whichKeyDescriptions[keySequence]
     }
 
     /**

@@ -27,7 +27,7 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
             val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
             val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
 
-            PopupConfig.showPopup(ideFrame, nestedMappings)
+            PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings)
         }
 
         // continue with the default behavior of IdeaVim

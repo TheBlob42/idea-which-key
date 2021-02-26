@@ -29,7 +29,7 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 
-                PopupConfig.showPopup(window!!, nestedMappings)
+                PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings)
             }
         }
 

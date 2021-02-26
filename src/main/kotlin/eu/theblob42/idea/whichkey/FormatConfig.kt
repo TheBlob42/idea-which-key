@@ -7,6 +7,7 @@ import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.Color
 import java.awt.Font
 import javax.swing.JLabel
+import javax.swing.KeyStroke
 
 object FormatConfig {
 
@@ -167,6 +168,22 @@ object FormatConfig {
         val descriptionWidth = descriptionLabel.preferredSize.width
 
         return keyWidth + dividerWidth + descriptionWidth
+    }
+
+    /**
+     * Format the typed keys sequence as paragraph with appropriate HTML tags and font colors
+     * @param keyStrokes The key strokes which should be formatted
+     * @return The formatted sequence as HTML paragraph
+     */
+    fun formatTypedSequence(keyStrokes: List<KeyStroke>): String {
+        val currentPrefix = escapeForHtml(MappingConfig.getWhichKeyDescription(keyStrokes) ?: MappingConfig.DEFAULT_PREFIX_LABEL)
+        val keyString = escapeForHtml(keyStrokes.joinToString(separator = "") { MappingConfig.keyToString(it) })
+
+        return "<p>" +
+                String.format(buildHtmlFormatString(keyStyle, keyColor), keyString) +
+                " " +
+                String.format(buildHtmlFormatString(descPrefixStyle, descPrefixColor), "[$currentPrefix]") +
+                "</p>"
     }
 
     // *****************************************************************************************************************

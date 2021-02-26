@@ -4,10 +4,12 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
+import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
 import com.maddyhome.idea.vim.option.OptionsManager
 import eu.theblob42.idea.whichkey.model.Mapping
 import kotlinx.coroutines.*
 import javax.swing.JFrame
+import javax.swing.KeyStroke
 import kotlin.math.ceil
 
 object PopupConfig {
@@ -31,15 +33,16 @@ object PopupConfig {
     }
 
     /**
-     * Show the popup presenting the nested mappings
+     * Show the popup presenting the nested mappings for [typedKeys]
      * Do not show the popup instantly but instead start a coroutine job to show the popup after a delay
      *
      * If there are no 'nestedMappings' (empty list) this function does nothing
      *
      * @param ideFrame The [JFrame] to attach the popup to
+     * @param typedKeys The already typed key stroke sequence
      * @param nestedMappings A [List] of nested mappings to display
      */
-    fun showPopup(ideFrame: JFrame, nestedMappings: List<Pair<String, Mapping>>) {
+    fun showPopup(ideFrame: JFrame, typedKeys: List<KeyStroke>, nestedMappings: List<Pair<String, Mapping>>) {
         if (nestedMappings.isEmpty()) {
             return
         }
@@ -87,6 +90,17 @@ object PopupConfig {
             mappingsStringBuilder.append("</tr>")
         }
         mappingsStringBuilder.append("</table>")
+
+        // append the already typed key sequence below the nested mappings table if configured (default: true)
+        val showTypedSequence = when (val show = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_ShowTypedSequence"]) {
+            null -> true
+            !is String -> true
+            else -> show.toBoolean()
+        }
+        if (showTypedSequence) {
+            mappingsStringBuilder.append("<hr style=\"margin-bottom: 2px;\">") // some small margin to not look cramped
+            mappingsStringBuilder.append(FormatConfig.formatTypedSequence(typedKeys))
+        }
 
         val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
         val fadeoutTime = if (OptionsManager.timeout.value) {
