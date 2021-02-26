@@ -1,4 +1,4 @@
-package eu.theblob42.idea.whichkey;
+package eu.theblob42.idea.whichkey
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent

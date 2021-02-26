@@ -57,14 +57,12 @@ object PopupConfig {
         // calculate the pixel width of the longest mapping string (with styling)
         val maxStringWidth = FormatConfig.calcFormattedMappingWidth(maxMapping)
         val possibleColumns = (frameWidth / maxStringWidth).let {
-            if (it < 1) {
+            when {
                 // ensure a minimum value of 1 to avoid dividing by zero
-                1
-            } else if (it > nestedMappings.size) {
+                it < 1 -> 1
                 // always use the full available screen space
-                nestedMappings.size
-            } else {
-                it
+                it > nestedMappings.size -> nestedMappings.size
+                else -> it
             }
         }
         // use as much space for every column as possible
