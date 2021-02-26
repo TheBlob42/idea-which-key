@@ -4,6 +4,7 @@
 
 ### Added
 
+- Show typed keys and current prefix within popup
 - Make FontFamily and FontSize configurable
 - Added documentation about `timeout` and `timeoutlen`
 
