@@ -10,6 +10,7 @@
 
 ### Changed
 
+- Subtract the time needed for calculations from the popup delay
 - Arguments for VIM motions (e.g. f, t, F, T) do not trigger the popup anymore
 
 ## 0.2 - 2021-02-17

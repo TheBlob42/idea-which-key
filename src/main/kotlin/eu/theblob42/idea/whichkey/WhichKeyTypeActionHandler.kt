@@ -32,11 +32,13 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
         if (commandState.commandBuilder.expectedArgumentType != Argument.Type.DIGRAPH) {
             val ideFrame = WindowManager.getInstance().getFrame(editor.project)
             if (ideFrame != null) {
+                val startTime = System.currentTimeMillis() // save start time for the popup delay
+
                 val mappingState = commandState.mappingState
                 val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
 
-                PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings)
+                PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings, startTime)
             }
         }
 

@@ -15,6 +15,8 @@ import kotlin.math.ceil
 
 object PopupConfig {
 
+    private const val DEFAULT_POPUP_DELAY = 200
+
     private var currentBalloon: Balloon? = null
     private var displayBalloonJob: Job? = null
 
@@ -42,8 +44,9 @@ object PopupConfig {
      * @param ideFrame The [JFrame] to attach the popup to
      * @param typedKeys The already typed key stroke sequence
      * @param nestedMappings A [List] of nested mappings to display
+     * @param startTime Timestamp to consider for the calculation of the popup delay
      */
-    fun showPopup(ideFrame: JFrame, typedKeys: List<KeyStroke>, nestedMappings: List<Pair<String, Mapping>>) {
+    fun showPopup(ideFrame: JFrame, typedKeys: List<KeyStroke>, nestedMappings: List<Pair<String, Mapping>>, startTime: Long) {
         if (nestedMappings.isEmpty()) {
             return
         }
@@ -117,10 +120,16 @@ object PopupConfig {
             .setFadeoutTime(fadeoutTime)
             .createBalloon()
 
-        // wait for a few ms before showing the Balloon to prevent
-        // flickering on fast consecutive key presses
+        /*
+         * wait for a few ms before showing the Balloon to prevent flickering on fast consecutive key presses
+         * subtract the already passed time (for calculations etc.) to make the delay as consistent as possible
+         */
+        val delay = (DEFAULT_POPUP_DELAY - (System.currentTimeMillis() - startTime)).let {
+            if (it < 0) 0 else it
+        }
+
         displayBalloonJob = GlobalScope.launch {
-            delay(200)
+            delay(delay)
             newWhichKeyBalloon.show(target, Balloon.Position.above)
             currentBalloon = newWhichKeyBalloon
         }

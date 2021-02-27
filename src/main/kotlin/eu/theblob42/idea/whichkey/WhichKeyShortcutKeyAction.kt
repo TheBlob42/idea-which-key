@@ -24,12 +24,14 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
         if (editor != null) {
             val inputEvent = actionEvent.inputEvent
             if (inputEvent is KeyEvent) {
+                val startTime = System.currentTimeMillis() // save start time for the popup delay
+
                 val mappingState = CommandState.getInstance(editor).mappingState
                 val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiers))
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 
-                PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings)
+                PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
             }
         }
 
