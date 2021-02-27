@@ -9,6 +9,7 @@ import com.maddyhome.idea.vim.option.OptionsManager
 import eu.theblob42.idea.whichkey.model.Mapping
 import kotlinx.coroutines.*
 import javax.swing.JFrame
+import javax.swing.JLabel
 import javax.swing.KeyStroke
 import kotlin.math.ceil
 
@@ -52,10 +53,10 @@ object PopupConfig {
          * it might be erroneous and could change in the future
          */
         val frameWidth = (ideFrame.width * 0.65).toInt()
-        // check for the longest string without HTML tags or styling (we have manually checked that 'nestedMappings' is not empty)
-        val maxMapping = nestedMappings.maxByOrNull { FormatConfig.calcRawMappingWidth(it) }!!
-        // calculate the pixel width of the longest mapping string (with styling)
-        val maxStringWidth = FormatConfig.calcFormattedMappingWidth(maxMapping)
+        // check for the longest string as this will most probably be the widest mapping
+        val maxMapping = nestedMappings.maxByOrNull { (key, mapping) -> key.length + mapping.description.length }!! // (we have manually checked that 'nestedMappings' is not empty)
+        // calculate the pixel width of the longest mapping string (with HTML formatting & styling)
+        val maxStringWidth = JLabel("<html>${FormatConfig.formatMappingEntry(maxMapping)}</html>").preferredSize.width
         val possibleColumns = (frameWidth / maxStringWidth).let {
             when {
                 // ensure a minimum value of 1 to avoid dividing by zero
@@ -69,10 +70,11 @@ object PopupConfig {
         val columnWidth = frameWidth / possibleColumns
 
         val elementsPerColumn = ceil(nestedMappings.size / possibleColumns.toDouble()).toInt()
-        val windowedMappings = FormatConfig.formatMappings(
+        val windowedMappings = nestedMappings
             // TODO implement other sort options
-            nestedMappings.sortedBy { it.first }
-        ).windowed(elementsPerColumn, elementsPerColumn, true)
+            .sortedBy { it.first }
+            .map(FormatConfig::formatMappingEntry)
+            .windowed(elementsPerColumn, elementsPerColumn, true)
 
         // to properly align the columns within HTML use a table with fixed with cells
         val mappingsStringBuilder = StringBuilder()
