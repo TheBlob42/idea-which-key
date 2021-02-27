@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3 - 2021-02-27
+
 ### Added
 
 - Show typed keys and current prefix within popup

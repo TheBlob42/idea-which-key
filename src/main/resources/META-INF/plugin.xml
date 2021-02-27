@@ -8,8 +8,9 @@
     <h2>
     <a href="https://plugins.jetbrains.com/plugin/164-ideavim">IdeaVim</a> extension that displays available keybindings in a popup.
     </h2>
-
-    <h3>Usage</h3>
+    <br/>
+    <b>Usage</b>
+    <br/>
     <ul>
         <li>Activate the plugin in your .ideavimrc file with `set which-key`</li>
         <li>Either disable the timeout option or increase the timeoutlen (default: 1000ms)
@@ -19,8 +20,9 @@
             </ul>
         </li>
     </ul>
-
-    <h3>More options</h3>
+    <br/>
+    <b>More options</b>
+    <br/>
     <p>
     For more information visit the corresponding <a href="https://github.com/TheBlob42/idea-which-key">Github repository</a>.
     </p>
@@ -28,17 +30,17 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.2</strong>
+        <strong>0.3</strong>
     </p>
     <ul>
-        <li>Display default VIM actions ('gg', 'zt', etc.) if configured</li>
-        <li>Dismantle the key mapping and description caching</li>
-        <li>Improve usage of the available space for the popup</li>
-        <li>Format options for several UI elements (key, description, prefix & divider)</li>
+        <li>Display typed keys and current prefix</li>
+        <li>Make Font-Family and -Size configurable</li>
+        <li>Arguments for VIM motions do not trigger the popup anymore</li>
+        <li>Some small bug fixes and improvements</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.2</version>
+    <version>0.3</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
