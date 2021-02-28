@@ -60,16 +60,16 @@ If no custom descriptions are defined, the right-hand side of all mappings will 
 To provide custom names for prefixes and commands we need to configure one variable for every mapping:
 
 ```vim
-let g:WhichKeyDesc_windows        = "<Space>w  +Windows"
-let g:WhichKeyDesc_windows_delete = "<Space>wd delete-window"
-let g:WhichKeyDesc_windows_split  = "<Space>ws split-window-below"
+let g:WhichKeyDesc_windows        = "<Space>w  Windows"
+let g:WhichKeyDesc_windows_delete = "<Space>wd delete"
+let g:WhichKeyDesc_windows_split  = "<Space>ws split below"
 ...
 ```
 
 The `<leader>` key is also supported
 
 ```vim
-let g:WhichKeyDesc_buffer        = "<leader>b  +Buffer"
+let g:WhichKeyDesc_windows_maximize = "<leader>wm maximize"
 ```
 
 ![configured popup](/assets/popup_configured.png)
