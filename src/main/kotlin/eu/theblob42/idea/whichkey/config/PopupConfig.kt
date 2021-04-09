@@ -16,6 +16,11 @@ import kotlin.math.ceil
 object PopupConfig {
 
     private const val DEFAULT_POPUP_DELAY = 200
+    private val defaultPopupDelay = when (val delay = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_DefaultDelay"]) {
+        null -> DEFAULT_POPUP_DELAY
+        !is Int -> DEFAULT_POPUP_DELAY
+        else -> delay
+    }
 
     private var currentBalloon: Balloon? = null
     private var displayBalloonJob: Job? = null
@@ -124,7 +129,7 @@ object PopupConfig {
          * wait for a few ms before showing the Balloon to prevent flickering on fast consecutive key presses
          * subtract the already passed time (for calculations etc.) to make the delay as consistent as possible
          */
-        val delay = (DEFAULT_POPUP_DELAY - (System.currentTimeMillis() - startTime)).let {
+        val delay = (defaultPopupDelay - (System.currentTimeMillis() - startTime)).let {
             if (it < 0) 0 else it
         }
 

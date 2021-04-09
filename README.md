@@ -118,6 +118,20 @@ You can hide this by adding the following to your `.ideavimrc`:
 let g:WhichKey_ShowTypedSequence = "false"
 ```
 
+### Delay
+
+In order to prevent the popup from "flickering" on fast consecutive key presses, there is a default delay of 200ms before it appears
+
+You can configure this value so the popup appears faster or slower after a key press. The unit for the delay is milliseconds (ms):
+
+```text
+" make the popup show up 'instantly'
+let g:WhichKey_DefaultDelay = 0
+
+" make the popup appear much slower
+let g:WhichKey_DefaultDelay = 600
+```
+
 ### Appearance
 
 You can configure the appearance of certain UI elements by setting the following options:
