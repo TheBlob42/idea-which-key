@@ -30,17 +30,15 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.3</strong>
+        <strong>0.4</strong>
     </p>
     <ul>
-        <li>Display typed keys and current prefix</li>
-        <li>Make Font-Family and -Size configurable</li>
-        <li>Arguments for VIM motions do not trigger the popup anymore</li>
-        <li>Some small bug fixes and improvements</li>
+        <li>Make the order of elements configurable</li>
+        <li>Make the popup delay configurable</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.3</version>
+    <version>0.4</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
