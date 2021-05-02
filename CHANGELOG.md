@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.4 - 2021-05-02
+
+### Added
+
+- Make the order of elements configurable
+- Make the popup delay configurable
+
 ## 0.3 - 2021-02-27
 
 ### Added
