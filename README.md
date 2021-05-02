@@ -167,7 +167,11 @@ You can configure the appearance of certain UI elements by setting the following
 
 ## Known issues
 
-Should you check your `idea.log` file you will stumble across the following error:
+You might see a little error popup on startup:
+
+![startup error](/assets/startup_error.png)
+
+Should you check the details or your `idea.log` file you will stumble across the following error:
 
 ```text
 ERROR - nSystem.impl.ActionManagerImpl - action with the ID "VimShortcutKeyAction" was already registered. Action being registered is  (null); Registered action is Shortcuts () Plugin: IDEA Which-Key [Plugin: eu.theblob42.idea.whichkey] 
