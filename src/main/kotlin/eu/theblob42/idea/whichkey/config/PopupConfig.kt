@@ -22,6 +22,13 @@ object PopupConfig {
         else -> delay
     }
 
+    private val DEFAULT_SORT_OPTION = SortOption.BY_KEY
+    private val sortOption = when (val option = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_SortOrder"]) {
+        null -> DEFAULT_SORT_OPTION
+        !is String -> DEFAULT_SORT_OPTION
+        else -> SortOption.values().firstOrNull { it.name.equals(option, ignoreCase = true) } ?: DEFAULT_SORT_OPTION
+    }
+
     private var currentBalloon: Balloon? = null
     private var displayBalloonJob: Job? = null
 
@@ -78,9 +85,7 @@ object PopupConfig {
         val columnWidth = frameWidth / possibleColumns
 
         val elementsPerColumn = ceil(nestedMappings.size / possibleColumns.toDouble()).toInt()
-        val windowedMappings = nestedMappings
-            // TODO implement other sort options
-            .sortedBy { it.first }
+        val windowedMappings = sortMappings(nestedMappings)
             .map(FormatConfig::formatMappingEntry)
             .windowed(elementsPerColumn, elementsPerColumn, true)
 
@@ -139,4 +144,23 @@ object PopupConfig {
             currentBalloon = newWhichKeyBalloon
         }
     }
+
+    /**
+     * Sort mappings dependent on the configured sort options
+     * @param nestedMappings The list of mappings to sort
+     * @return The sorted list of mappings
+     */
+    private fun sortMappings(nestedMappings: List<Pair<String, Mapping>>): List<Pair<String, Mapping>> {
+        return when (sortOption) {
+            SortOption.BY_KEY -> nestedMappings.sortedBy { it.first }
+            SortOption.BY_KEY_PREFIX_FIRST -> nestedMappings.sortedWith(compareBy ({ !it.second.prefix }, { it.first }))
+            SortOption.BY_DESCRIPTION -> nestedMappings.sortedBy { it.second.description }
+        }
+    }
+}
+
+enum class SortOption {
+    BY_KEY,
+    BY_KEY_PREFIX_FIRST,
+    BY_DESCRIPTION
 }
