@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>eu.theblob42.idea.whichkey</id>
-    <name>IDEA Which-Key</name>
+    <name>Which-Key</name>
     <vendor url="https://github.com/TheBlob42">Tobias Völzel</vendor>
     <idea-version since-build="201"/>
 

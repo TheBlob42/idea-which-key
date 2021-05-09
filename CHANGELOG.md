@@ -4,6 +4,10 @@
 
 ## 0.4 - 2021-05-02
 
+### Changed
+
+- Changed plugin name to "Which-Key" (on request from Jetbrains)
+
 ### Added
 
 - Make the order of elements configurable
