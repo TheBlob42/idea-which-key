@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/15976-idea-which-key.svg?style=flat-square)](https://plugins.jetbrains.com/plugin/15976-idea-which-key)
 
-# IDEA-Which-Key
+# Which-Key
 
 [IdeaVim](https://github.com/JetBrains/ideavim) extension that displays available keybindings in a popup similar to [vim-which-key](https://github.com/liuchengxu/vim-which-key)
 
@@ -12,7 +12,7 @@
 
 Install the plugin from the official [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15976-idea-which-key)
 
-Withing Intellij go to *File -> Settings -> Plugins -> Marketplace* search for "Idea Which Key" and click on *Install*
+Withing Intellij go to *File -> Settings -> Plugins -> Marketplace* search for "Which Key" and click on *Install*
 
 ### Manual Installation
 
@@ -47,7 +47,7 @@ By default (Idea)VIM will wait for `timeoutlen` milliseconds after each key pres
 
 ## Customization
 
-You can customize several aspects of IDEA-Which-Key via variables in your `.ideavimrc`
+You can customize several aspects of Which-Key via variables in your `.ideavimrc`
 
 > Use the `:source ~/.ideavimrc` command to reload your config file
 
@@ -96,7 +96,7 @@ Due to this limitation and the lack of any more convenient data types (array, li
 
 ### VIM Actions
 
-By default Idea-Which-Key will only display key mappings which are defined in the `.ideavimrc` file. If you wish it can also display default VIM actions like `gg`, `zz`, `zt`, `<C-w>k`, etc. in the popup. For this you need to set the following variable within your `.ideavimrc`:
+By default Which-Key will only display key mappings which are defined in the `.ideavimrc` file. If you wish it can also display default VIM actions like `gg`, `zz`, `zt`, `<C-w>k`, etc. in the popup. For this you need to set the following variable within your `.ideavimrc`:
 
 ```vim
 let g:WhichKey_ShowVimActions = "true"
@@ -178,6 +178,6 @@ ERROR - nSystem.impl.ActionManagerImpl - action with the ID "VimShortcutKeyActio
 com.intellij.diagnostic.PluginException: action with the ID "VimShortcutKeyAction" was already registered. Action being registered is  (null); Registered action is Shortcuts () Plugin: IDEA Which-Key [Plugin: eu.theblob42.idea.whichkey]
 ```
 
-**This is a known issue which will not compromise your usage of Intellij, IdeaVIM or IDEA-Which-Key in any way!**
+**This is a known issue which will not compromise your usage of Intellij, IdeaVIM or Which-Key in any way!**
 
-In order for IDEA-Which-Key to work the plugin needs to intercept every key stroke and check if there are any key mappings which should be displayed. In order to intercept any modified key stroke (`Ctrl + w`, `Alt + n`, etc.) or special keys without a corresponding character (`Escape`, `Enter`, etc.) the plugin overwrites the `VimShortcutKeyAction` of IdeaVIM which usually handles these (this is the reason for the shown error). After checking for anything to display the event is passed to the original class. Therefore no functionality is lost by using the IDEA-Which-Key plugin.
+In order for Which-Key to work the plugin needs to intercept every key stroke and check if there are any key mappings which should be displayed. In order to intercept any modified key stroke (`Ctrl + w`, `Alt + n`, etc.) or special keys without a corresponding character (`Escape`, `Enter`, etc.) the plugin overwrites the `VimShortcutKeyAction` of IdeaVIM which usually handles these (this is the reason for the shown error). After checking for anything to display the event is passed to the original class. Therefore no functionality is lost by using the IDEA-Which-Key plugin.
