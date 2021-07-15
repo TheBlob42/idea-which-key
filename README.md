@@ -164,20 +164,3 @@ You can configure the appearance of certain UI elements by setting the following
 ¹`default`: the default foreground color of the currently used theme  
 ²`keyword`: the color for "keywords" of the currently used theme  
 ³Uses the IDE default value for the font size (without any configuration this should be `15`)
-
-## Known issues
-
-You might see a little error popup on startup:
-
-![startup error](/assets/startup_error.png)
-
-Should you check the details or your `idea.log` file you will stumble across the following error:
-
-```text
-ERROR - nSystem.impl.ActionManagerImpl - action with the ID "VimShortcutKeyAction" was already registered. Action being registered is  (null); Registered action is Shortcuts () Plugin: IDEA Which-Key [Plugin: eu.theblob42.idea.whichkey] 
-com.intellij.diagnostic.PluginException: action with the ID "VimShortcutKeyAction" was already registered. Action being registered is  (null); Registered action is Shortcuts () Plugin: IDEA Which-Key [Plugin: eu.theblob42.idea.whichkey]
-```
-
-**This is a known issue which will not compromise your usage of Intellij, IdeaVIM or Which-Key in any way!**
-
-In order for Which-Key to work the plugin needs to intercept every key stroke and check if there are any key mappings which should be displayed. In order to intercept any modified key stroke (`Ctrl + w`, `Alt + n`, etc.) or special keys without a corresponding character (`Escape`, `Enter`, etc.) the plugin overwrites the `VimShortcutKeyAction` of IdeaVIM which usually handles these (this is the reason for the shown error). After checking for anything to display the event is passed to the original class. Therefore no functionality is lost by using the IDEA-Which-Key plugin.
