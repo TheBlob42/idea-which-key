@@ -30,15 +30,14 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.4</strong>
+        <strong>0.5</strong>
     </p>
     <ul>
-        <li>Make the order of elements configurable</li>
-        <li>Make the popup delay configurable</li>
+        <li>Avoid error on startup</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.4</version>
+    <version>0.5</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
