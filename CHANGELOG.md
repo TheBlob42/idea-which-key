@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Unregister IdeaVIM 'VimShortcutKeyAction' to avoid startup error
+
 ## 0.4 - 2021-05-02
 
 ### Changed
@@ -36,7 +38,7 @@
 
 ### Changed
 
-- minimum IdeaVIM version is now `0.65`
+- Minimum IdeaVIM version is now `0.65`
 - Dismantle key mapping and description caching
   - Changes are reflected on `.ideavimrc` reload, no restart of Intellij required anymore
 - Fixed prefix comparison (issue with the '<' character)

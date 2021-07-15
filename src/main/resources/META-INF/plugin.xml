@@ -47,8 +47,4 @@
         <vimExtension implementation="eu.theblob42.idea.whichkey.WhichKeyExtension" name="which-key"/>
     </extensions>
 
-    <actions>
-        <action id="VimShortcutKeyAction" class="eu.theblob42.idea.whichkey.WhichKeyShortcutKeyAction"/>
-    </actions>
-
 </idea-plugin>
