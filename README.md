@@ -12,7 +12,7 @@
 
 Install the plugin from the official [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/15976-idea-which-key)
 
-Withing Intellij go to *File -> Settings -> Plugins -> Marketplace* search for "Which Key" and click on *Install*
+Within Intellij go to *File -> Settings -> Plugins -> Marketplace* search for "Which Key" and click on *Install*
 
 ### Manual Installation
 
