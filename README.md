@@ -74,7 +74,7 @@ let g:WhichKeyDesc_windows_maximize = "<leader>wm maximize"
 
 ![configured popup](/assets/popup_configured.png)
 
-Every variable's name has to start with `g:WhichKeyDesc_` in order to be recognized by the plugin. The rest of the variable name can be set to whatever fits best with you. For the value of each variable use the right-hand side of the mapping followed by at least one space or tab characters and finished with the description string you want to be displayed. 
+Every variable's name has to start with `g:WhichKeyDesc_` in order to be recognized by the plugin. The rest of the variable name can be set to whatever fits best with you. For the value of each variable use the left-hand side of the mapping followed by at least one space or tab characters and finished with the description string you want to be displayed.
 
 Or if you prefer it in regular expressions:
 
