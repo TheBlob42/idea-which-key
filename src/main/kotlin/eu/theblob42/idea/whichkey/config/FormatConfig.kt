@@ -131,6 +131,7 @@ object FormatConfig {
      */
     fun formatTypedSequence(keyStrokes: List<KeyStroke>): String {
         val currentPrefix = escapeForHtml(MappingConfig.getWhichKeyDescription(keyStrokes) ?: MappingConfig.DEFAULT_PREFIX_LABEL)
+            .ifBlank { MappingConfig.DEFAULT_PREFIX_LABEL } // if custom description is blank (prefix was not displayed) use default prefix label
         val keyString = escapeForHtml(keyStrokes.joinToString(separator = "") { MappingConfig.keyToString(it) })
 
         return "<p>" +
