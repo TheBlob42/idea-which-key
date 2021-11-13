@@ -18,7 +18,7 @@ object MappingConfig {
     const val DEFAULT_PREFIX_LABEL = "Prefix"
 
     private const val DEFAULT_LEADER_KEY = "\\"
-    private val DESCRIPTION_REGEX = Regex("(.*?)[ \\t]+(.*)")
+    private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
     /**
      * All VIM default mappings per [MappingMode].
@@ -183,7 +183,11 @@ object MappingConfig {
             val description = whichKeyDescriptions[sequenceString]
                 ?: if (isPrefix) DEFAULT_PREFIX_LABEL else defaultDescription
 
-            nestedMappings[nextKey] = Mapping(isPrefix, description)
+            // only display mappings that have a non-blank description
+            // this allows to "remove" mappings from appearing in the popup by specifying an empty description string
+            if (description.isNotBlank()) {
+                nestedMappings[nextKey] = Mapping(isPrefix, description)
+            }
         }
 
         return nestedMappings
