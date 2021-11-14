@@ -30,14 +30,14 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.5</strong>
+        <strong>0.6</strong>
     </p>
     <ul>
-        <li>Avoid error on startup</li>
+        <li>Mappings can be "removed" from the popup</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.5</version>
+    <version>0.6</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>

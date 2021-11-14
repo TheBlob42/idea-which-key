@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.6 - 2021-11-14
+
+### Added
+
+- Mappings can be "removed" from the popup (not displayed, still executable)
+
 ## 0.5 - 2021-07-15
 
 ### Changed
