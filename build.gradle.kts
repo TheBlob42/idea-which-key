@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "eu.theblob42.idea.whichkey"
-version = "0.6"
+version = "0.6.1"
 
 repositories {
     mavenCentral()
@@ -13,10 +13,10 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.5.2")
 
-    implementation("org.apache.logging.log4j", "log4j-core", "2.14.0")
-    implementation("org.apache.logging.log4j", "log4j-api", "2.14.0")
+    implementation("org.apache.logging.log4j", "log4j-core", "2.15.0")
+    implementation("org.apache.logging.log4j", "log4j-api", "2.15.0")
 
     testImplementation("junit", "junit", "4.12")
 }
