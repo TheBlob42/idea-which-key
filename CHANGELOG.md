@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.6.1 - 2021-12-13
+
+- update dependencies (log4j vulnerability)
+
 ## 0.6 - 2021-11-14
 
 ### Added
