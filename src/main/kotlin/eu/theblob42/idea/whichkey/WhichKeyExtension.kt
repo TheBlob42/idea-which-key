@@ -38,8 +38,7 @@ class WhichKeyExtension: VimExtension {
                     typedAction.setupRawHandler(WhichKeyTypeActionHandler(rawTypedActionHandler))
 
                     logger.debug("replacing IdeaVim 'VimShortcutKeyAction'")
-                    ActionManager.getInstance().unregisterAction("VimShortcutKeyAction")
-                    ActionManager.getInstance().registerAction("VimShortcutKeyAction", WhichKeyShortcutKeyAction())
+                    ActionManager.getInstance().replaceAction("VimShortcutKeyAction", WhichKeyShortcutKeyAction())
                     timer.cancel()
                 }
             }
