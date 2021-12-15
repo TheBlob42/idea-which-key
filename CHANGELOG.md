@@ -4,6 +4,8 @@
 
 ## 0.6.2 - 2021-12-15
 
+### Changed
+
 - update log4j dependency to `2.16.0`
 - use proper `replaceAction` function for "VimShortcutKeyAction"
 
