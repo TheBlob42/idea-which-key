@@ -1,15 +1,16 @@
 package eu.theblob42.idea.whichkey.config
 
 import com.maddyhome.idea.vim.VimPlugin
+import com.maddyhome.idea.vim.api.VimActionsInitiator
 import com.maddyhome.idea.vim.command.MappingMode
-import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
-import com.maddyhome.idea.vim.handler.ActionBeanClass
-import com.maddyhome.idea.vim.helper.StringHelper
 import com.maddyhome.idea.vim.key.CommandNode
 import com.maddyhome.idea.vim.key.CommandPartNode
 import com.maddyhome.idea.vim.key.Node
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
+import com.maddyhome.idea.vim.newapi.ij
+import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
+import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
@@ -50,8 +51,8 @@ object MappingConfig {
      * @param keyStrokes The [KeyStroke]s related to the given [node]
      * @param node The current mapping node
      */
-    private fun extractVimActions(vimActionsMap: MutableMap<List<KeyStroke>, String>, keyStrokes: List<KeyStroke>, node: Node<ActionBeanClass>) {
-        if (node is CommandPartNode<ActionBeanClass>) {
+    private fun extractVimActions(vimActionsMap: MutableMap<List<KeyStroke>, String>, keyStrokes: List<KeyStroke>, node: Node<VimActionsInitiator>) {
+        if (node is CommandPartNode<VimActionsInitiator>) {
             node.map {
                 val keys = keyStrokes + listOf(it.key)
                 extractVimActions(vimActionsMap, keys, it.value)
@@ -59,7 +60,7 @@ object MappingConfig {
             return
         }
 
-        val actionId = (node as CommandNode<ActionBeanClass>).actionHolder.actionId
+        val actionId = (node as CommandNode<VimActionsInitiator>).actionHolder.ij.actionId
         vimActionsMap[keyStrokes] = actionId
     }
 
@@ -134,13 +135,21 @@ object MappingConfig {
          * map both key mappings and VIM actions to Pair<List<KeyStroke>, String>
          * then iterate over both combined and check for nested mappings
          */
-        val keyMappingPairs = keyMapping.map {
-            Pair(it.toList(), keyMapping[it]?.getPresentableString() ?: "no description")
-        }
+        val keyMappingPairs = keyMapping
+            .filterNotNull()
+            // check that all keystrokes are non-null (otherwise ignore for now)
+            .filter { it.filterNotNull().size == it.size }
+            .map {
+                it.map { keyStroke -> keyStroke!! }
+            }
+            // final mapping to pairs
+            .map {
+                Pair(it.toList(), keyMapping[it]?.getPresentableString() ?: "no description")
+            }
         // check .ideavimrc if the default VIM actions should be displayed along other mappings (default: false)
-        val showVimActions = when (val value = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_ShowVimActions"]) {
+        val showVimActions = when (val value = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ShowVimActions")) {
             null -> false
-            is String -> value.toBoolean()
+            is VimString -> value.asString().toBoolean()
             else -> false
         }
         val vimActionsPairs = if (showVimActions) {
@@ -153,9 +162,10 @@ object MappingConfig {
         for ((mappedKeyStrokes, defaultDescription) in (keyMappingPairs + vimActionsPairs)) {
             // Check for "fake" <Plug> mappings and ignore them
             // Check 'VimExtensionFacade.putExtensionHandlerMapping(...)' for more information
-            val vkPlug = KeyEvent.CHAR_UNDEFINED.toInt().dec() // the "original" VK_PLUG constant is private
+            val vkPlug = KeyEvent.CHAR_UNDEFINED.code.dec() // the "original" VK_PLUG constant is private
+            val vkAction = KeyEvent.CHAR_UNDEFINED.code - 2 // the "original" VK_ACTION constant is private
             val code = mappedKeyStrokes[0].keyCode
-            if (code == vkPlug || code == StringHelper.VK_ACTION) {
+            if (code == vkPlug || code == vkAction) {
                 continue
             }
 
@@ -199,15 +209,15 @@ object MappingConfig {
      * @return [Map] of 'key sequence' to 'custom description'
      */
     private fun extractWhichKeyDescriptions(): Map<String, String> {
-        val leaderKey = when (val leader = VimScriptGlobalEnvironment.getInstance().variables["mapleader"]) {
+        val leaderKey = when (val leader = VimPlugin.getVariableService().getGlobalVariableValue("mapleader")) {
             null -> DEFAULT_LEADER_KEY
-            is String -> leader.map { keyToString(it, 0, 0) }.joinToString(separator = "")
+            is VimString -> leader.asString().map { keyToString(it, 0, 0) }.joinToString(separator = "")
             else -> DEFAULT_LEADER_KEY
         }
-        return VimScriptGlobalEnvironment.getInstance().variables.entries
+        return VimPlugin.getVariableService().getGlobalVariables().entries
             .asSequence()
-            .filter { it.key.startsWith("g:WhichKeyDesc_") }
-            .map { it.value.toString() }
+            .filter { it.key.startsWith("WhichKeyDesc_") }
+            .map { it.value.asString() }
             .map { it.replace("<leader>", leaderKey) }
             .mapNotNull {
                 // destructure the regex groups into Pairs
@@ -260,10 +270,10 @@ object MappingConfig {
             return keyChar.toString()
         }
 
-        val mod = KeyEvent.getKeyModifiersText(modifiers)
+        val mod = InputEvent.getModifiersExText(modifiers)
         val key = KeyEvent.getKeyText(keyCode).let {
             if (it.length == 1) {
-                it.toLowerCase()
+                it.lowercase()
             } else {
                 it
             }

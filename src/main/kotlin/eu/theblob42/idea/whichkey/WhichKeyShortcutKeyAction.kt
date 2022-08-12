@@ -27,7 +27,7 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
                 val startTime = System.currentTimeMillis() // save start time for the popup delay
 
                 val mappingState = CommandState.getInstance(editor).mappingState
-                val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiers))
+                val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiersEx))
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 

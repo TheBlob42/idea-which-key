@@ -4,8 +4,10 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
-import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
-import com.maddyhome.idea.vim.option.OptionsManager
+import com.maddyhome.idea.vim.VimPlugin
+import com.maddyhome.idea.vim.options.OptionScope
+import com.maddyhome.idea.vim.vimscript.model.datatypes.VimInt
+import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
 import kotlinx.coroutines.*
 import javax.swing.JFrame
@@ -16,17 +18,17 @@ import kotlin.math.ceil
 object PopupConfig {
 
     private const val DEFAULT_POPUP_DELAY = 200
-    private val defaultPopupDelay = when (val delay = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_DefaultDelay"]) {
+    private val defaultPopupDelay = when (val delay = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_DefaultDelay")) {
         null -> DEFAULT_POPUP_DELAY
-        !is Int -> DEFAULT_POPUP_DELAY
-        else -> delay
+        !is VimInt -> DEFAULT_POPUP_DELAY
+        else -> delay.value
     }
 
     private val DEFAULT_SORT_OPTION = SortOption.BY_KEY
-    private val sortOption = when (val option = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_SortOrder"]) {
+    private val sortOption = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortOrder")) {
         null -> DEFAULT_SORT_OPTION
-        !is String -> DEFAULT_SORT_OPTION
-        else -> SortOption.values().firstOrNull { it.name.equals(option, ignoreCase = true) } ?: DEFAULT_SORT_OPTION
+        !is VimString -> DEFAULT_SORT_OPTION
+        else -> SortOption.values().firstOrNull { it.name.equals(option.asString(), ignoreCase = true) } ?: DEFAULT_SORT_OPTION
     }
 
     private var currentBalloon: Balloon? = null
@@ -105,10 +107,10 @@ object PopupConfig {
         mappingsStringBuilder.append("</table>")
 
         // append the already typed key sequence below the nested mappings table if configured (default: true)
-        val showTypedSequence = when (val show = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_ShowTypedSequence"]) {
+        val showTypedSequence = when (val show = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ShowTypedSequence")) {
             null -> true
-            !is String -> true
-            else -> show.toBoolean()
+            !is VimString -> true
+            else -> show.asBoolean()
         }
         if (showTypedSequence) {
             mappingsStringBuilder.append("<hr style=\"margin-bottom: 2px;\">") // some small margin to not look cramped
@@ -116,8 +118,9 @@ object PopupConfig {
         }
 
         val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
-        val fadeoutTime = if (OptionsManager.timeout.value) {
-            OptionsManager.timeoutlen.value().toLong()
+        val fadeoutTime = if (VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeout").asBoolean()) {
+            // TODO this seems to not work correctly
+            VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeoutlen").asDouble().toLong()
         } else {
             0L
         }
