@@ -2,7 +2,9 @@ package eu.theblob42.idea.whichkey.config
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.maddyhome.idea.vim.ex.vimscript.VimScriptGlobalEnvironment
+import com.maddyhome.idea.vim.VimPlugin
+import com.maddyhome.idea.vim.vimscript.model.datatypes.VimInt
+import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.Color
 import javax.swing.JLabel
@@ -20,41 +22,41 @@ object FormatConfig {
 
     private const val DEFAULT_DIVIDER = " → "
     private val divider: String
-    get() = when (val div = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_Divider"]) {
+    get() = when (val div = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_Divider")) {
         null -> DEFAULT_DIVIDER
-        !is String -> DEFAULT_DIVIDER
-        else -> escapeForHtml(div)
+        !is VimString -> DEFAULT_DIVIDER
+        else -> escapeForHtml(div.asString())
     }
 
     private const val DEFAULT_FONT_FAMILY = "monospace" // the alignment works best with a monospaced font
     private val fontFamily: String
-    get() = when (val font = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_FontFamily"]) {
+    get() = when (val font = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_FontFamily")) {
         null -> DEFAULT_FONT_FAMILY
-        !is String -> DEFAULT_FONT_FAMILY
-        else -> font
+        !is VimString -> DEFAULT_FONT_FAMILY
+        else -> font.asString()
     }
 
     private val fontSize: Int // font size in point
-    get() = when (val size = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_FontSize"]) {
+    get() = when (val size = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_FontSize")) {
         // get default value from a "basic" JLabel
         null -> JLabel().font.size
-        !is Int -> JLabel().font.size
-        else -> size
+        !is VimInt -> JLabel().font.size
+        else -> size.toVimNumber().value
     }
 
     // configuration variables for the keys
     private val keyColor: String
-    get() = when (val color = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_KeyColor"]) {
+    get() = when (val color = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_KeyColor")) {
         // default color is the foreground color of the current theme
         null -> defaultForegroundColor
-        !is String -> defaultForegroundColor
-        DEFAULT_FOREGROUND_KEY -> defaultForegroundColor
-        DEFAULT_KEYWORD_KEY -> defaultKeywordColor
-        else -> color
+        !is VimString -> defaultForegroundColor
+        VimString(DEFAULT_FOREGROUND_KEY) -> defaultForegroundColor
+        VimString(DEFAULT_KEYWORD_KEY) -> defaultKeywordColor
+        else -> color.asString()
     }
 
     private val keyStyle: String
-    get() = when (VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_KeyStyle"]) {
+    get() = when (VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_KeyStyle")?.asString()) {
         "none" -> "span"
         "italic" -> "i"
         // default style is bold
@@ -63,17 +65,17 @@ object FormatConfig {
 
     // configuration variables for the description of commands
     private val descCommandColor: String
-    get() = when (val color = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_CommandColor"]) {
+    get() = when (val color = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_CommandColor")) {
         // default color is the foreground color of the current theme
         null -> defaultForegroundColor
-        !is String -> defaultForegroundColor
-        DEFAULT_FOREGROUND_KEY -> defaultForegroundColor
-        DEFAULT_KEYWORD_KEY -> defaultKeywordColor
-        else -> color
+        !is VimString -> defaultForegroundColor
+        VimString(DEFAULT_FOREGROUND_KEY) -> defaultForegroundColor
+        VimString(DEFAULT_KEYWORD_KEY) -> defaultKeywordColor
+        else -> color.asString()
     }
 
     private val descCommandStyle: String
-    get() = when (VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_CommandStyle"]) {
+    get() = when (VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_CommandStyle")?.asString()) {
         "bold" -> "b"
         "italic" -> "i"
         // default style is none (nothing)
@@ -82,17 +84,17 @@ object FormatConfig {
 
     // configuration variables for the description of prefixes
     private val descPrefixColor: String
-    get() = when (val color = VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_PrefixColor"]) {
+    get() = when (val color = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_PrefixColor")) {
         // default color is the keyword color of the current theme
         null -> defaultKeywordColor
-        !is String -> defaultKeywordColor
-        DEFAULT_KEYWORD_KEY -> defaultKeywordColor
-        DEFAULT_FOREGROUND_KEY -> defaultForegroundColor
-        else -> color
+        !is VimString -> defaultKeywordColor
+        VimString(DEFAULT_KEYWORD_KEY) -> defaultKeywordColor
+        VimString(DEFAULT_FOREGROUND_KEY) -> defaultForegroundColor
+        else -> color.asString()
     }
 
     private val descPrefixStyle: String
-    get() = when (VimScriptGlobalEnvironment.getInstance().variables["g:WhichKey_PrefixStyle"]) {
+    get() = when (VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_PrefixStyle")?.asString()) {
         "bold" -> "b"
         "italic" -> "i"
         // default style is none (nothing)

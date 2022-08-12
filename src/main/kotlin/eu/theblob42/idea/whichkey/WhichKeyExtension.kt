@@ -1,17 +1,16 @@
 package eu.theblob42.idea.whichkey
 
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.actionSystem.TypedAction
 import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.extension.VimExtension
-import org.apache.log4j.LogManager
-import org.apache.log4j.Logger
 import java.util.*
 
 class WhichKeyExtension: VimExtension {
 
     companion object {
-        val logger: Logger = LogManager.getLogger(WhichKeyExtension::class.java)
+        val logger = logger<WhichKeyExtension>()
     }
 
     override fun getName() = "which-key"
@@ -20,11 +19,11 @@ class WhichKeyExtension: VimExtension {
         logger.debug("init IDEA Which-Key extension")
 
         /*
-         * We have to exchange the 'raw' typing handler which is set by IdeaVim with our own in order to intercept all key strokes
+         * We have to exchange the 'raw' typing handler which is set by IdeaVim with our own in order to intercept all keystrokes
          * Unfortunately during the VIM extension init process the IdeaVim handler hasn't been set yet
          * To ensure the handler is replaced as soon as possible (before the project has loaded completed) we use the following Timer
          *
-         * Furthermore we also have to replace the 'VimShortcutKeyAction' of IdeaVim with our own implementation
+         * Furthermore, we also have to replace the 'VimShortcutKeyAction' of IdeaVim with our own implementation
          * This is needed to intercept modified (e.g. Ctrl + W) or special key strokes (e.g. Escape) properly
          */
         val typedAction = TypedAction.getInstance()

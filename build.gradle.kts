@@ -1,7 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id("org.jetbrains.intellij") version "0.6.5"
     java
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.6.20"
+    id("org.jetbrains.intellij") version "1.8.0"
 }
 
 group = "eu.theblob42.idea.whichkey"
@@ -13,21 +15,22 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.5.2")
-
-    implementation("org.apache.logging.log4j", "log4j-core", "2.16.0")
-    implementation("org.apache.logging.log4j", "log4j-api", "2.16.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
     testImplementation("junit", "junit", "4.12")
 }
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
+}
+
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = "2020.2"
+    version.set("2022.2")
     // do not patch plugin.xml since/until build with values inferred from the intellij version
-    updateSinceUntilBuild = false
+    updateSinceUntilBuild.set(false)
 
-    setPlugins("IdeaVIM:0.65")
+    plugins.set(listOf("IdeaVIM:1.11.1"))
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
