@@ -2,18 +2,32 @@
 
 ## Unreleased
 
+## 0.7.0
+
+### Changed
+
+- Update gradle wrapper to (`6.7.1`)
+- Update intellij gradle plugin (`1.8.0`)
+- Update kotlin version (`1.6.20`)
+- Update kotlin coroutines (`1.6.4`)
+- Remove log4j dependencies completely
+- Bump minimum Idea version to `2022.2`
+- Bump minimum IdeaVim version to `1.11.1`
+- Use new `VariableService` to get values
+- Fix several "scheduled for removal" issues
+
 ## 0.6.2 - 2021-12-15
 
 ### Changed
 
-- update log4j dependency to `2.16.0`
-- use proper `replaceAction` function for "VimShortcutKeyAction"
+- Update log4j dependency to `2.16.0`
+- Use proper `replaceAction` function for "VimShortcutKeyAction"
 
 ## 0.6.1 - 2021-12-13
 
 ### Changed
 
-- update dependencies (log4j vulnerability)
+- Update dependencies (log4j vulnerability)
 
 ## 0.6 - 2021-11-14
 

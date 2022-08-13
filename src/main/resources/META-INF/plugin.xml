@@ -30,15 +30,16 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.6.2</strong>
+        <strong>0.7.0</strong>
     </p>
     <ul>
-        <li>Update log4j dependencies</li>
-        <li>Smaller bug fixes</li>
+        <li>update to work with intellij version 2022.2</li>
+        <li>update to work with IdeaVim version 1.11.1</li>
+        <li>remove all log4j dependencies</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.6.2</version>
+    <version>0.7.0</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
