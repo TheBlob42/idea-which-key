@@ -119,7 +119,6 @@ object PopupConfig {
 
         val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
         val fadeoutTime = if (VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeout").asBoolean()) {
-            // TODO this seems to not work correctly
             VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeoutlen").asDouble().toLong()
         } else {
             0L
