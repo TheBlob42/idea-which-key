@@ -27,9 +27,6 @@ tasks.withType<KotlinCompile> {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version.set("2022.2")
-    // do not patch plugin.xml since/until build with values inferred from the intellij version
-    updateSinceUntilBuild.set(false)
-
     plugins.set(listOf("IdeaVIM:1.11.1"))
 }
 
