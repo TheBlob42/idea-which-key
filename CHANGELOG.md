@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.7.1
+
+### Changed
+
+- Update to work with version 2022.3
+
 ## 0.7.0
 
 ### Changed
