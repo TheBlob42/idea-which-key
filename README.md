@@ -35,8 +35,8 @@ set which-key
 " disable the timeout option
 set notimeout
 
-" increase the timeoutlen (default: 1000)
-set timeoutlen = 5000
+" increase the timeoutlen (default: 1000), don't add space around the equal sign =
+set timeoutlen=5000
 ```
 
 #### Explanation: `timeout` & `timeoutlen`
