@@ -172,3 +172,31 @@ You can configure the appearance of certain UI elements by setting the following
 ¹`default`: the default foreground color of the currently used theme  
 ²`keyword`: the color for "keywords" of the currently used theme  
 ³Uses the IDE default value for the font size (without any configuration this should be `15`)
+
+## Known Issues
+
+The way the plugin injects itself into the flow of IdeaVIM to provide its features is a little "hacky" and you might encounter some inconsistencies. If you encounter anything not documented open an issue so we can check and maybe fix it. These are the ones that I am aware of
+
+### Special Prefixes
+
+Consider the following mapping sequence example which contains a modified key press (`<C-a>`) within:
+
+> What the mapping does is not important for the example
+
+```text
+noremap g<C-a>bc ...
+```
+
+If you are about to activate this mapping the following will happen:
+
+| Press   | What will happen                                   |
+| ---     | ---                                                |
+| `g`     | The popup will appear and show `<C-a>` as a prefix |
+| `<C-a>` | The popup will close itself                        |
+| `b`     | The popup will reopen and show `c` as a command    |
+| `c`     | This will close the popup and execute your mapping |
+
+
+The reason for this is that we currently have no way to intercept modified & special key presses like `<C-a>`, `<Esc>`, `<A-a>` etc. Vim internal actions like `<C-d>` or `<C-o>` are handled as a custom action instead of being processed by a general handler like "regular" key presses
+
+If you have more knowledge about the internals of IdeaVIM in this regard or have another idea how to solve this issue, please open an issue or PR
