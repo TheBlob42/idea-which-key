@@ -21,6 +21,12 @@ object MappingConfig {
     private const val DEFAULT_LEADER_KEY = "\\"
     private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
+    val processUnknownMappings = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
+        null -> true
+        is VimString -> option.asString().toBoolean()
+        else -> true
+    }
+
     /**
      * All VIM default mappings per [MappingMode].
      * This value only considers mappings which have more than one key stroke
@@ -201,6 +207,36 @@ object MappingConfig {
         }
 
         return nestedMappings
+    }
+
+    /**
+     * Check if the given keystrokes represent a valid key mapping (user or VIM internal)
+     *
+     * @param mode The [MappingMode] to check the keystrokes
+     * @param keyStrokes The list of keystrokes to check
+     * @return `true` if the sequence represents an actual mapping, `false` if they are just unrelated keystrokes
+     */
+    fun isMapping(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
+        val seq = keyStrokes.joinToString { keyToString(it) }
+
+        // check if there is a custom user mapping for the given keystrokes
+        val isCustomMapping = VimPlugin.getKey().getKeyMapping(mode)
+            .asSequence()
+            .filterNotNull()
+            .filter { it.filterNotNull().size == it.size } // ignore mappings with null keystrokes
+            .filter { it.size == keyStrokes.size }
+            .map { it.joinToString { keyStroke -> keyToString(keyStroke!!) } }
+            .find { it == seq } != null
+
+        if (isCustomMapping) {
+            return true
+        }
+
+        // check if there is an VIM "internal" mapping for the given keystrokes
+        return (VIM_ACTIONS[mode]?.keys ?: listOf())
+            .filter { it.size == keyStrokes.size }
+            .map { it.joinToString { keyStroke -> keyToString(keyStroke) } }
+            .find { it == seq } != null
     }
 
     /**
