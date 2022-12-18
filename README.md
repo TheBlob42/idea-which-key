@@ -140,6 +140,17 @@ let g:WhichKey_DefaultDelay = 0
 let g:WhichKey_DefaultDelay = 600
 ```
 
+### On Unknown Mapping
+
+With the popup open pressing any key that is not mapped to any further prefix or action will close it and process all typed keys individually with their default actions
+
+If you prefer to just close the popup without any further processing you can configure this:
+
+```text
+" close the popup and don't process formerly typed keys
+let g:WhichKey_ProcessUnknownMappings = "false"
+```
+
 ### Order
 
 By default all elements of the popup are ordered alphabetically by the key you have to press.

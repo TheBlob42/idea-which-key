@@ -17,6 +17,16 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
     // default IdeaVim shortcut action handler
     private val vimShortcutKeyAction = VimShortcutKeyAction()
 
+    private var ignoreNextUpdate = false
+
+    override fun update(actionEvent: AnActionEvent) {
+        if (ignoreNextUpdate) {
+            ignoreNextUpdate = false
+            return
+        }
+        vimShortcutKeyAction.update(actionEvent)
+    }
+
     override fun actionPerformed(actionEvent: AnActionEvent) {
         PopupConfig.hidePopup()
 
@@ -31,14 +41,20 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 
+                if (typedKeySequence.size > 1
+                    && nestedMappings.isEmpty()
+                    && !MappingConfig.processUnknownMappings
+                    && !MappingConfig.isMapping(mappingState.mappingMode, typedKeySequence)) {
+                    // reset the mapping state, do not open a popup & ignore the next call to `update`
+                    mappingState.resetMappingSequence()
+                    ignoreNextUpdate = true
+                    return
+                }
+
                 PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
             }
         }
 
         vimShortcutKeyAction.actionPerformed(actionEvent)
-    }
-
-    override fun update(actionEvent: AnActionEvent) {
-        vimShortcutKeyAction.update(actionEvent)
     }
 }

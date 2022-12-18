@@ -14,7 +14,13 @@ import javax.swing.KeyStroke
 
 class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActionHandler): TypedActionHandlerEx {
 
+    private var ignoreNextExecute = false
+
     override fun execute(editor: Editor, charTyped: Char, dataContext: DataContext) {
+        if (ignoreNextExecute) {
+            ignoreNextExecute = false
+            return
+        }
         vimTypedActionHandler.execute(editor, charTyped, dataContext)
     }
 
@@ -37,6 +43,16 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
                 val mappingState = commandState.mappingState
                 val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
+
+                if (typedKeySequence.size > 1
+                    && nestedMappings.isEmpty()
+                    && !MappingConfig.processUnknownMappings
+                    && !MappingConfig.isMapping(mappingState.mappingMode, typedKeySequence)) {
+                    // reset the mapping state, do not open a popup & ignore the next call to `execute`
+                    mappingState.resetMappingSequence()
+                    ignoreNextExecute = true
+                    return
+                }
 
                 PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings, startTime)
             }
