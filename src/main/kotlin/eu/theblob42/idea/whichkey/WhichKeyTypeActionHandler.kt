@@ -8,6 +8,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.CommandState
+import com.maddyhome.idea.vim.command.MappingMode
 import eu.theblob42.idea.whichkey.config.MappingConfig
 import eu.theblob42.idea.whichkey.config.PopupConfig
 import javax.swing.KeyStroke
@@ -44,17 +45,17 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
                 val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
 
-                if (typedKeySequence.size > 1
-                    && nestedMappings.isEmpty()
-                    && !MappingConfig.processUnknownMappings
-                    && !MappingConfig.isMapping(mappingState.mappingMode, typedKeySequence)) {
-                    // reset the mapping state, do not open a popup & ignore the next call to `execute`
-                    mappingState.resetMappingSequence()
-                    ignoreNextExecute = true
-                    return
+                if (nestedMappings.isEmpty()) {
+                    if (mappingState.mappingMode != MappingMode.INSERT
+                            && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)) {
+                        // reset the mapping state, do not open a popup & ignore the next call to `execute`
+                        mappingState.resetMappingSequence()
+                        ignoreNextExecute = true
+                        return
+                    }
+                } else {
+                    PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings, startTime)
                 }
-
-                PopupConfig.showPopup(ideFrame, typedKeySequence, nestedMappings, startTime)
             }
         }
 
