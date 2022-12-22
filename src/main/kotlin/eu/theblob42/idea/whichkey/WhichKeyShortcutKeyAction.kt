@@ -7,6 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.action.VimShortcutKeyAction
 import com.maddyhome.idea.vim.command.CommandState
+import com.maddyhome.idea.vim.command.MappingMode
 import eu.theblob42.idea.whichkey.config.MappingConfig
 import eu.theblob42.idea.whichkey.config.PopupConfig
 import java.awt.event.KeyEvent
@@ -41,17 +42,17 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
                 val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 
-                if (typedKeySequence.size > 1
-                    && nestedMappings.isEmpty()
-                    && !MappingConfig.processUnknownMappings
-                    && !MappingConfig.isMapping(mappingState.mappingMode, typedKeySequence)) {
-                    // reset the mapping state, do not open a popup & ignore the next call to `update`
-                    mappingState.resetMappingSequence()
-                    ignoreNextUpdate = true
-                    return
+                if (nestedMappings.isEmpty()) {
+                    if (mappingState.mappingMode != MappingMode.INSERT
+                            && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)) {
+                        // reset the mapping state, do not open a popup & ignore the next call to `update`
+                        mappingState.resetMappingSequence()
+                        ignoreNextUpdate = true
+                        return
+                    }
+                } else {
+                    PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
                 }
-
-                PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
             }
         }
 

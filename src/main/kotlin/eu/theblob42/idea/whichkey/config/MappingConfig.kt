@@ -2,6 +2,9 @@ package eu.theblob42.idea.whichkey.config
 
 import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.api.VimActionsInitiator
+import com.maddyhome.idea.vim.api.injector
+import com.maddyhome.idea.vim.command.Argument
+import com.maddyhome.idea.vim.command.DuplicableOperatorAction
 import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.key.CommandNode
 import com.maddyhome.idea.vim.key.CommandPartNode
@@ -21,7 +24,7 @@ object MappingConfig {
     private const val DEFAULT_LEADER_KEY = "\\"
     private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
-    val processUnknownMappings = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
+    private val processUnknownMappings = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
         null -> true
         is VimString -> option.asString().toBoolean()
         else -> true
@@ -237,6 +240,63 @@ object MappingConfig {
             .filter { it.size == keyStrokes.size }
             .map { it.joinToString { keyStroke -> keyToString(keyStroke) } }
             .find { it == seq } != null
+    }
+
+    /**
+     * Check if we should proceed with the possible unknown mapping or not
+     *
+     * @param mode The [MappingMode] to check the keystrokes
+     * @param keyStrokes The list of keystrokes to check
+     * @return `true` if we should process with the mapping, `false` if not
+     */
+    fun processWithUnknownMapping(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
+        // check configurable user setting first
+        if (processUnknownMappings) {
+            return true
+        }
+
+        // single key mappings are always passed
+        if (keyStrokes.size == 1) {
+            return true
+        }
+
+        // maybe the given key sequence is actually a mapping (user or internal)
+        if (isMapping(mode, keyStrokes)) {
+            return true
+        }
+
+        // check if the given sequence might be an operator mapping
+        if (isMapping(MappingMode.OP_PENDING, keyStrokes)) {
+            return true
+        }
+
+        val node = injector.keyGroup.getKeyRoot(mode)
+        val prefix = keyStrokes.dropLast(1)
+
+        // check for a motion argument, even if the new key is not a valid motion its action would be blocked by default
+        if (node.any {
+            it.key == prefix.last()
+                    && it.value is CommandNode
+                    && (it.value as CommandNode).actionHolder.getInstance().argumentType == Argument.Type.MOTION
+        }) {
+            return true
+        }
+
+        val operatorNode = injector.keyGroup.getKeyRoot(MappingMode.OP_PENDING)
+
+        // check for duplicate operator actions like dd, yy or cc
+        if (keyStrokes.size == 2
+                && keyStrokes.first() == keyStrokes.last()
+                && operatorNode.any {
+                    it.key == keyStrokes.first()
+                            && it.value is CommandNode
+                            && (it.value as CommandNode).actionHolder.getInstance() is DuplicableOperatorAction
+                }
+        ) {
+            return true
+        }
+
+        return false
     }
 
     /**
