@@ -6,8 +6,10 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.action.VimShortcutKeyAction
+import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.command.MappingMode
+import com.maddyhome.idea.vim.options.OptionScope
 import eu.theblob42.idea.whichkey.config.MappingConfig
 import eu.theblob42.idea.whichkey.config.PopupConfig
 import java.awt.event.KeyEvent
@@ -31,27 +33,31 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
     override fun actionPerformed(actionEvent: AnActionEvent) {
         PopupConfig.hidePopup()
 
-        val editor = actionEvent.getData(PlatformDataKeys.EDITOR)
-        if (editor != null) {
-            val inputEvent = actionEvent.inputEvent
-            if (inputEvent is KeyEvent) {
-                val startTime = System.currentTimeMillis() // save start time for the popup delay
+        if (injector.optionService.getOptionValue(OptionScope.GLOBAL, "which-key").asBoolean()) {
+            val editor = actionEvent.getData(PlatformDataKeys.EDITOR)
+            if (editor != null) {
+                val inputEvent = actionEvent.inputEvent
+                if (inputEvent is KeyEvent) {
+                    val startTime = System.currentTimeMillis() // save start time for the popup delay
 
-                val mappingState = CommandState.getInstance(editor).mappingState
-                val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiersEx))
-                val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
-                val window = WindowManager.getInstance().getFrame(editor.project)
+                    val mappingState = CommandState.getInstance(editor).mappingState
+                    val typedKeySequence =
+                        mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiersEx))
+                    val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
+                    val window = WindowManager.getInstance().getFrame(editor.project)
 
-                if (nestedMappings.isEmpty()) {
-                    if (mappingState.mappingMode != MappingMode.INSERT
-                            && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)) {
-                        // reset the mapping state, do not open a popup & ignore the next call to `update`
-                        mappingState.resetMappingSequence()
-                        ignoreNextUpdate = true
-                        return
+                    if (nestedMappings.isEmpty()) {
+                        if (mappingState.mappingMode != MappingMode.INSERT
+                            && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)
+                        ) {
+                            // reset the mapping state, do not open a popup & ignore the next call to `update`
+                            mappingState.resetMappingSequence()
+                            ignoreNextUpdate = true
+                            return
+                        }
+                    } else {
+                        PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
                     }
-                } else {
-                    PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
                 }
             }
         }
