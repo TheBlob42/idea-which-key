@@ -151,6 +151,12 @@ If you prefer to just close the popup without any further processing you can con
 let g:WhichKey_ProcessUnknownMappings = "false"
 ```
 
+#### Caveats
+
+This will never block insert mode mappings in order to enable mappings like `imap jk <Esc>` without interfering with characters you actually want to type. It also should¹ not interfere with operator commands or motions which are not "real" mappings like `hjkl`, `d`, `f`, etc.
+
+¹*If you encounter any weird behavior please open an issue, as there might be edge cases not covered yet*
+
 ### Order
 
 By default all elements of the popup are ordered alphabetically by the key you have to press.
