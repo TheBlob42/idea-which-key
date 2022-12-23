@@ -5,6 +5,7 @@
 ### Added
 
 - Option to not process unmapped keys and just close the popup
+- Make plugin toggleable via `set nowhich-key`
 
 ## 0.7.1
 
