@@ -29,14 +29,15 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.7.1</strong>
+        <strong>0.8.0</strong>
     </p>
     <ul>
-        <li>update to work with intellij version 2022.3</li>
+        <li>option to not process unmapped keys</li>
+        <li>make plugin toggleable</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.7.1</version>
+    <version>0.8.0</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
