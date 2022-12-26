@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.8.0
+
 ### Added
 
 - Option to not process unmapped keys and just close the popup
