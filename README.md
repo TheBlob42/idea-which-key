@@ -166,7 +166,7 @@ You can change this by setting the value for the variable `g:WhichKey_SortOrder`
 | Value                 | Description                                                                    |
 |-----------------------|--------------------------------------------------------------------------------|
 | `by_key`              | Sort all elements alphabetically by their key (default)                        |
-| `be_key_prefix_first` | Same as `by_key` but all prefix entries are ordered before any command mapping |
+| `by_key_prefix_first` | Same as `by_key` but all prefix entries are ordered before any command mapping |
 | `by_description`      | Sort all elements alphabetically by their description                          |
 
 
