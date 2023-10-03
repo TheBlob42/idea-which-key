@@ -31,6 +31,13 @@ object PopupConfig {
         else -> SortOption.values().firstOrNull { it.name.equals(option.asString(), ignoreCase = true) } ?: DEFAULT_SORT_OPTION
     }
 
+    private const val DEFAULT_SORT_CASE_SENSITIVE = true
+    private val sortCaseSensitive = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortCaseSensitive")) {
+        null -> DEFAULT_SORT_CASE_SENSITIVE
+        !is VimString -> DEFAULT_SORT_CASE_SENSITIVE
+        else -> option.asString().toBoolean()
+    }
+
     private var currentBalloon: Balloon? = null
     private var displayBalloonJob: Job? = null
 
@@ -153,10 +160,14 @@ object PopupConfig {
      * @return The sorted list of mappings
      */
     private fun sortMappings(nestedMappings: List<Pair<String, Mapping>>): List<Pair<String, Mapping>> {
+        // String::compareTo is by default case-sensitive
+        val cmp = if (sortCaseSensitive) String::compareTo else String.CASE_INSENSITIVE_ORDER::compare
+
         return when (sortOption) {
-            SortOption.BY_KEY -> nestedMappings.sortedBy { it.first }
-            SortOption.BY_KEY_PREFIX_FIRST -> nestedMappings.sortedWith(compareBy ({ !it.second.prefix }, { it.first }))
-            SortOption.BY_DESCRIPTION -> nestedMappings.sortedBy { it.second.description }
+            SortOption.BY_KEY -> nestedMappings.sortedWith(compareBy(cmp) { it.first })
+            SortOption.BY_KEY_PREFIX_FIRST -> nestedMappings.sortedWith(compareBy<Pair<String, Mapping>> { !it.second.prefix }.thenBy(cmp) { it.first })
+            SortOption.BY_KEY_PREFIX_LAST -> nestedMappings.sortedWith(compareBy<Pair<String, Mapping>> { it.second.prefix }.thenBy(cmp) { it.first })
+            SortOption.BY_DESCRIPTION -> nestedMappings.sortedWith(compareBy(cmp) { it.second.description })
         }
     }
 }
@@ -164,5 +175,6 @@ object PopupConfig {
 enum class SortOption {
     BY_KEY,
     BY_KEY_PREFIX_FIRST,
+    BY_KEY_PREFIX_LAST,
     BY_DESCRIPTION
 }

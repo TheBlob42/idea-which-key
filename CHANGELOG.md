@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- New sort option `BY_KEY_PREFIX_LAST`
+- New `g:WhichKey_SortCaseSensitive` variable
+  - Controls if the sorting of elements in the popup should be case-sensitive or not (default: `true`)
+
 ## 0.8.0
 
 ### Added
