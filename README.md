@@ -167,8 +167,20 @@ You can change this by setting the value for the variable `g:WhichKey_SortOrder`
 |-----------------------|--------------------------------------------------------------------------------|
 | `by_key`              | Sort all elements alphabetically by their key (default)                        |
 | `by_key_prefix_first` | Same as `by_key` but all prefix entries are ordered before any command mapping |
+| `by_key_prefix_last`  | Same as `by_key` but all prefix entries are ordered after any command mapping  |
 | `by_description`      | Sort all elements alphabetically by their description                          |
 
+Note that by default all order is based on case-sensitive sorting (so `Z` comes before `a`).
+
+You can change this default by setting the `g:WhichKey_SortCaseSensitive` variable to `false` (default: `true`).
+
+```text
+" set how the elements should be ordered
+let g:WhichKey_SortOrder = "by_key_prefix_first"
+
+" set if the sorting should be case-sensitive or not
+let g:WhichKey_SortCaseSensitive = "false"
+```
 
 ### Appearance
 
