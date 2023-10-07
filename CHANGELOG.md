@@ -8,6 +8,14 @@
 - New `g:WhichKey_SortCaseSensitive` variable
   - Controls if the sorting of elements in the popup should be case-sensitive or not (default: `true`)
 
+### Changes
+
+- Fix missing getters for several properties to make them reloadable without restart
+  - `WhichKey_DefaultDelay`
+  - `WhichKey_SortOrder`
+  - `WhichKey_SortCaseSensitive`
+  - `WhichKey_ProcessUnknownMappings`
+
 ## 0.8.0
 
 ### Added
