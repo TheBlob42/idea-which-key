@@ -18,21 +18,24 @@ import kotlin.math.ceil
 object PopupConfig {
 
     private const val DEFAULT_POPUP_DELAY = 200
-    private val defaultPopupDelay = when (val delay = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_DefaultDelay")) {
+    private val defaultPopupDelay: Int
+    get() = when (val delay = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_DefaultDelay")) {
         null -> DEFAULT_POPUP_DELAY
         !is VimInt -> DEFAULT_POPUP_DELAY
         else -> delay.value
     }
 
     private val DEFAULT_SORT_OPTION = SortOption.BY_KEY
-    private val sortOption = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortOrder")) {
+    private val sortOption: SortOption
+    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortOrder")) {
         null -> DEFAULT_SORT_OPTION
         !is VimString -> DEFAULT_SORT_OPTION
         else -> SortOption.values().firstOrNull { it.name.equals(option.asString(), ignoreCase = true) } ?: DEFAULT_SORT_OPTION
     }
 
     private const val DEFAULT_SORT_CASE_SENSITIVE = true
-    private val sortCaseSensitive = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortCaseSensitive")) {
+    private val sortCaseSensitive: Boolean
+    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortCaseSensitive")) {
         null -> DEFAULT_SORT_CASE_SENSITIVE
         !is VimString -> DEFAULT_SORT_CASE_SENSITIVE
         else -> option.asString().toBoolean()
