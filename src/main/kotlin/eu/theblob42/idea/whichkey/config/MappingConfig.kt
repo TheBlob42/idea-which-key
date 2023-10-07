@@ -24,7 +24,8 @@ object MappingConfig {
     private const val DEFAULT_LEADER_KEY = "\\"
     private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
-    private val processUnknownMappings = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
+    private val processUnknownMappings: Boolean
+    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
         null -> true
         is VimString -> option.asString().toBoolean()
         else -> true
