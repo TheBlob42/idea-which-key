@@ -49,7 +49,7 @@ By default (Idea)VIM will wait for `timeoutlen` milliseconds after each key pres
 
 You can customize several aspects of Which-Key via variables in your `.ideavimrc`
 
-> Use the `:source ~/.ideavimrc` command to reload your config file
+> Use the `:action IdeaVim.ReloadVimRc.reload` command to reload your config file
 
 ### Descriptions
 
