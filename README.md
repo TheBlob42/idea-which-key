@@ -29,13 +29,13 @@ Install the jar in Intellij via *File -> Settings -> Plugins -> Install Plugin f
 Since this is an extension plugin for IdeaVim you have to activate it explicitly within your `.ideavimrc` file  
 Furthermore you should either disable the `timeout` option or increase the value for `timeoutlen`
 
-```text
+```vim
 set which-key
 
 " disable the timeout option
 set notimeout
 
-" increase the timeoutlen (default: 1000), don't add space around the equal sign =
+" increase the timeoutlen (default: 1000), don't add space around the equal sign
 set timeoutlen=5000
 ```
 
@@ -113,7 +113,7 @@ let g:WhichKey_ShowVimActions = "true"
 If you wish you can also add custom descriptions for VIM Actions the same way as for other key mappings:
 
 ```vim
-let g:WhichKeyDesc_goto_top = "gg   goto first line"
+let g:WhichKeyDesc_goto_top = "gg goto first line"
 ```
 
 ### Typed Keys
@@ -132,7 +132,7 @@ In order to prevent the popup from "flickering" on fast consecutive key presses,
 
 You can configure this value so the popup appears faster or slower after a key press. The unit for the delay is milliseconds (ms):
 
-```text
+```vim
 " make the popup show up 'instantly'
 let g:WhichKey_DefaultDelay = 0
 
@@ -146,7 +146,7 @@ With the popup open pressing any key that is not mapped to any further prefix or
 
 If you prefer to just close the popup without any further processing you can configure this:
 
-```text
+```vim
 " close the popup and don't process formerly typed keys
 let g:WhichKey_ProcessUnknownMappings = "false"
 ```
@@ -174,7 +174,7 @@ Note that by default all order is based on case-sensitive sorting (so `Z` comes 
 
 You can change this default by setting the `g:WhichKey_SortCaseSensitive` variable to `false` (default: `true`).
 
-```text
+```vim
 " set how the elements should be ordered
 let g:WhichKey_SortOrder = "by_key_prefix_first"
 
