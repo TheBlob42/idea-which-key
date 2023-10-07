@@ -117,7 +117,7 @@ object PopupConfig {
         val showTypedSequence = when (val show = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ShowTypedSequence")) {
             null -> true
             !is VimString -> true
-            else -> show.asBoolean()
+            else -> show.asString().toBoolean()
         }
         if (showTypedSequence) {
             mappingsStringBuilder.append("<hr style=\"margin-bottom: 2px;\">") // some small margin to not look cramped
