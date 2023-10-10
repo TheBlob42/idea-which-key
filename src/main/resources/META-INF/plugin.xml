@@ -29,15 +29,16 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.8.0</strong>
+        <strong>0.9.0</strong>
     </p>
     <ul>
-        <li>option to not process unmapped keys</li>
-        <li>make plugin toggleable</li>
+        <li>new 'by_key_prefix_last' sort option</li>
+        <li>make case-sensitivity for ordering configurable</li>
+        <li>fix dynamic reloading for several options</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.8.0</version>
+    <version>0.9.0</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>

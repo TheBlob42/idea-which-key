@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.9.0
+
 ### Added
 
 - New sort option `BY_KEY_PREFIX_LAST`
