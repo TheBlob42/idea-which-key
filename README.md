@@ -4,7 +4,10 @@
 
 [IdeaVim](https://github.com/JetBrains/ideavim) extension that displays available keybindings in a popup similar to [vim-which-key](https://github.com/liuchengxu/vim-which-key)
 
-![idea which key](/assets/idea_which_key.gif)
+![idea which key](./assets/idea_which_key.gif)
+
+> Which-Key only displays **available** keybindings, it will not set them for you ([#44](https://github.com/TheBlob42/idea-which-key/issues/44), [#46](https://github.com/TheBlob42/idea-which-key/issues/46))  
+> For a "complete" setup you might have a look at [intellimacs](https://github.com/MarcoIeni/intellimacs) (which was used for the GIF above)
 
 ## Installation
 
