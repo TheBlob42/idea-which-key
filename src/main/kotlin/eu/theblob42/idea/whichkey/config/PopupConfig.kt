@@ -4,8 +4,8 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.ui.awt.RelativePoint
-import com.maddyhome.idea.vim.VimPlugin
-import com.maddyhome.idea.vim.options.OptionScope
+import com.maddyhome.idea.vim.api.globalOptions
+import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimInt
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
@@ -19,7 +19,7 @@ object PopupConfig {
 
     private const val DEFAULT_POPUP_DELAY = 200
     private val defaultPopupDelay: Int
-    get() = when (val delay = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_DefaultDelay")) {
+    get() = when (val delay = injector.variableService.getGlobalVariableValue("WhichKey_DefaultDelay")) {
         null -> DEFAULT_POPUP_DELAY
         !is VimInt -> DEFAULT_POPUP_DELAY
         else -> delay.value
@@ -27,7 +27,7 @@ object PopupConfig {
 
     private val DEFAULT_SORT_OPTION = SortOption.BY_KEY
     private val sortOption: SortOption
-    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortOrder")) {
+    get() = when (val option = injector.variableService.getGlobalVariableValue("WhichKey_SortOrder")) {
         null -> DEFAULT_SORT_OPTION
         !is VimString -> DEFAULT_SORT_OPTION
         else -> SortOption.values().firstOrNull { it.name.equals(option.asString(), ignoreCase = true) } ?: DEFAULT_SORT_OPTION
@@ -35,7 +35,7 @@ object PopupConfig {
 
     private const val DEFAULT_SORT_CASE_SENSITIVE = true
     private val sortCaseSensitive: Boolean
-    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_SortCaseSensitive")) {
+    get() = when (val option = injector.variableService.getGlobalVariableValue("WhichKey_SortCaseSensitive")) {
         null -> DEFAULT_SORT_CASE_SENSITIVE
         !is VimString -> DEFAULT_SORT_CASE_SENSITIVE
         else -> option.asString().toBoolean()
@@ -117,7 +117,7 @@ object PopupConfig {
         mappingsStringBuilder.append("</table>")
 
         // append the already typed key sequence below the nested mappings table if configured (default: true)
-        val showTypedSequence = when (val show = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ShowTypedSequence")) {
+        val showTypedSequence = when (val show = injector.variableService.getGlobalVariableValue("WhichKey_ShowTypedSequence")) {
             null -> true
             !is VimString -> true
             else -> show.asString().toBoolean()
@@ -128,8 +128,8 @@ object PopupConfig {
         }
 
         val target = RelativePoint.getSouthWestOf(ideFrame.rootPane)
-        val fadeoutTime = if (VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeout").asBoolean()) {
-            VimPlugin.getOptionService().getOptionValue(OptionScope.GLOBAL, "timeoutlen").asDouble().toLong()
+        val fadeoutTime = if (injector.globalOptions().timeout) {
+            injector.globalOptions().timeoutlen.toLong()
         } else {
             0L
         }

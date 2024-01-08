@@ -1,6 +1,5 @@
 package eu.theblob42.idea.whichkey.config
 
-import com.maddyhome.idea.vim.VimPlugin
 import com.maddyhome.idea.vim.api.VimActionsInitiator
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
@@ -10,7 +9,6 @@ import com.maddyhome.idea.vim.key.CommandNode
 import com.maddyhome.idea.vim.key.CommandPartNode
 import com.maddyhome.idea.vim.key.Node
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
-import com.maddyhome.idea.vim.newapi.ij
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.event.InputEvent
@@ -25,7 +23,7 @@ object MappingConfig {
     private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
     private val processUnknownMappings: Boolean
-    get() = when (val option = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
+    get() = when (val option = injector.variableService.getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
         null -> true
         is VimString -> option.asString().toBoolean()
         else -> true
@@ -41,7 +39,7 @@ object MappingConfig {
         // since the VIM default mappings do not change during runtime we are extracting them once during initialization
         for (mode in enumValues<MappingMode>()) {
             val modeMap = VIM_ACTIONS.getOrPut(mode) { mutableMapOf() }
-            VimPlugin.getKey().getKeyRoot(mode)
+            injector.keyGroup.getKeyRoot(mode)
                 // we are only interested in VIM actions with more than one key stroke
                 .filter {
                     it.value is CommandPartNode
@@ -107,7 +105,7 @@ object MappingConfig {
         var replacedKeyStrokes = mutableListOf<KeyStroke>()
         for (keyStroke in keyStrokes) {
             replacedKeyStrokes.add(keyStroke)
-            val mapping = VimPlugin.getKey().getKeyMapping(mode)[replacedKeyStrokes]
+            val mapping = injector.keyGroup.getKeyMapping(mode)[replacedKeyStrokes]
 
             if (mapping != null && mapping is ToKeysMappingInfo) {
                 replacedKeyStrokes = mapping.toKeys.toMutableList()
@@ -119,7 +117,7 @@ object MappingConfig {
         }
 
         // check if the "exact" key stroke sequence maps to another sequence which has nested mappings
-        val sequenceMapping = VimPlugin.getKey().getKeyMapping(mode)[keyStrokes]
+        val sequenceMapping = injector.keyGroup.getKeyMapping(mode)[keyStrokes]
         if (sequenceMapping != null
             && sequenceMapping is ToKeysMappingInfo
             && sequenceMapping.toKeys != replacedKeyStrokes){
@@ -140,7 +138,7 @@ object MappingConfig {
      * @return A [Map] combining the next keys to press with their corresponding [Mapping]s
      */
     private fun extractNestedMappings(mode: MappingMode, keyStrokes: List<KeyStroke>, whichKeyDescriptions: Map<String, String>): Map<String, Mapping> {
-        val keyMapping = VimPlugin.getKey().getKeyMapping(mode)
+        val keyMapping = injector.keyGroup.getKeyMapping(mode)
         /*
          * map both key mappings and VIM actions to Pair<List<KeyStroke>, String>
          * then iterate over both combined and check for nested mappings
@@ -157,7 +155,7 @@ object MappingConfig {
                 Pair(it.toList(), keyMapping[it]?.getPresentableString() ?: "no description")
             }
         // check .ideavimrc if the default VIM actions should be displayed along other mappings (default: false)
-        val showVimActions = when (val value = VimPlugin.getVariableService().getGlobalVariableValue("WhichKey_ShowVimActions")) {
+        val showVimActions = when (val value = injector.variableService.getGlobalVariableValue("WhichKey_ShowVimActions")) {
             null -> false
             is VimString -> value.asString().toBoolean()
             else -> false
@@ -224,7 +222,7 @@ object MappingConfig {
         val seq = keyStrokes.joinToString { keyToString(it) }
 
         // check if there is a custom user mapping for the given keystrokes
-        val isCustomMapping = VimPlugin.getKey().getKeyMapping(mode)
+        val isCustomMapping = injector.keyGroup.getKeyMapping(mode)
             .asSequence()
             .filterNotNull()
             .filter { it.filterNotNull().size == it.size } // ignore mappings with null keystrokes
@@ -306,12 +304,12 @@ object MappingConfig {
      * @return [Map] of 'key sequence' to 'custom description'
      */
     private fun extractWhichKeyDescriptions(): Map<String, String> {
-        val leaderKey = when (val leader = VimPlugin.getVariableService().getGlobalVariableValue("mapleader")) {
+        val leaderKey = when (val leader = injector.variableService.getGlobalVariableValue("mapleader")) {
             null -> DEFAULT_LEADER_KEY
             is VimString -> leader.asString().map { keyToString(it, 0, 0) }.joinToString(separator = "")
             else -> DEFAULT_LEADER_KEY
         }
-        return VimPlugin.getVariableService().getGlobalVariables().entries
+        return injector.variableService.getGlobalVariables().entries
             .asSequence()
             .filter { it.key.startsWith("WhichKeyDesc_") }
             .map { it.value.asString() }

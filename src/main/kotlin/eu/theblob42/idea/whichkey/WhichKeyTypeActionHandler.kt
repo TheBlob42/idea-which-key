@@ -10,7 +10,8 @@ import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.command.MappingMode
-import com.maddyhome.idea.vim.options.OptionScope
+import com.maddyhome.idea.vim.newapi.vim
+import com.maddyhome.idea.vim.options.OptionAccessScope
 import eu.theblob42.idea.whichkey.config.MappingConfig
 import eu.theblob42.idea.whichkey.config.PopupConfig
 import javax.swing.KeyStroke
@@ -30,7 +31,10 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
     override fun beforeExecute(editor: Editor, charTyped: Char, dataContext: DataContext, plan: ActionPlan) {
         PopupConfig.hidePopup()
 
-        if (injector.optionService.getOptionValue(OptionScope.GLOBAL, "which-key").asBoolean()) {
+        val whichKeyOption = injector.optionGroup.getOption("which-key")
+        if (whichKeyOption != null &&
+            injector.optionGroup.getOptionValue(whichKeyOption, OptionAccessScope.EFFECTIVE(editor.vim)).asBoolean()
+        ) {
             val commandState = CommandState.getInstance(editor)
             /*
              * check if the CommandBuilder is waiting for a DIGRAPH argument to the last typed action e.g. f<char>, t<char>, d<motion>
