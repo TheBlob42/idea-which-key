@@ -3,8 +3,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version "1.6.20"
-    id("org.jetbrains.intellij") version "1.8.0"
+    kotlin("jvm") version "1.9.22"
+    id("org.jetbrains.intellij") version "1.16.1"
 }
 
 group = "eu.theblob42.idea.whichkey"
@@ -26,14 +26,17 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<PatchPluginXmlTask> {
-    sinceBuild.set("222")
+    sinceBuild.set("232")
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version.set("2022.2")
+    pluginsRepositories {
+        custom("https://plugins.jetbrains.com/plugins/eap/ideavim")
+    }
+    version.set("2023.3.2")
     updateSinceUntilBuild.set(false)
-    plugins.set(listOf("IdeaVIM:1.11.1"))
+    plugins.set(listOf("IdeaVIM:2.8.0-eap.1"))
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
