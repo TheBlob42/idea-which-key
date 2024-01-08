@@ -70,7 +70,7 @@ object MappingConfig {
             return
         }
 
-        val actionId = (node as CommandNode<VimActionsInitiator>).actionHolder.ij.actionId
+        val actionId = (node as CommandNode<VimActionsInitiator>).actionHolder.getInstance().id
         vimActionsMap[keyStrokes] = actionId
     }
 
