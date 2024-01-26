@@ -1,6 +1,6 @@
 package eu.theblob42.idea.whichkey.config
 
-import com.maddyhome.idea.vim.api.VimActionsInitiator
+import com.maddyhome.idea.vim.action.change.LazyVimCommand
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.DuplicableOperatorAction
@@ -59,8 +59,8 @@ object MappingConfig {
      * @param keyStrokes The [KeyStroke]s related to the given [node]
      * @param node The current mapping node
      */
-    private fun extractVimActions(vimActionsMap: MutableMap<List<KeyStroke>, String>, keyStrokes: List<KeyStroke>, node: Node<VimActionsInitiator>) {
-        if (node is CommandPartNode<VimActionsInitiator>) {
+    private fun extractVimActions(vimActionsMap: MutableMap<List<KeyStroke>, String>, keyStrokes: List<KeyStroke>, node: Node<LazyVimCommand>) {
+        if (node is CommandPartNode<LazyVimCommand>) {
             node.map {
                 val keys = keyStrokes + listOf(it.key)
                 extractVimActions(vimActionsMap, keys, it.value)
@@ -68,7 +68,7 @@ object MappingConfig {
             return
         }
 
-        val actionId = (node as CommandNode<VimActionsInitiator>).actionHolder.getInstance().id
+        val actionId = (node as CommandNode<LazyVimCommand>).actionHolder.instance.id
         vimActionsMap[keyStrokes] = actionId
     }
 
@@ -276,7 +276,7 @@ object MappingConfig {
         if (node.any {
             it.key == prefix.last()
                     && it.value is CommandNode
-                    && (it.value as CommandNode).actionHolder.getInstance().argumentType == Argument.Type.MOTION
+                    && (it.value as CommandNode).actionHolder.instance.argumentType == Argument.Type.MOTION
         }) {
             return true
         }
@@ -289,7 +289,7 @@ object MappingConfig {
                 && operatorNode.any {
                     it.key == keyStrokes.first()
                             && it.value is CommandNode
-                            && (it.value as CommandNode).actionHolder.getInstance() is DuplicableOperatorAction
+                            && (it.value as CommandNode).actionHolder.instance is DuplicableOperatorAction
                 }
         ) {
             return true
