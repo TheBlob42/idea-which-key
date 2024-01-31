@@ -31,12 +31,9 @@ tasks.withType<PatchPluginXmlTask> {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    pluginsRepositories {
-        custom("https://plugins.jetbrains.com/plugins/eap/ideavim")
-    }
     version.set("2023.3.2")
     updateSinceUntilBuild.set(false)
-    plugins.set(listOf("IdeaVIM:2.8.0-eap.4"))
+    plugins.set(listOf("IdeaVIM:2.8.0"))
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
