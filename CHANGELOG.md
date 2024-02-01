@@ -4,9 +4,12 @@
 
 ## 0.10.0
 
+**Breaking**: Needs IdeaVim version >= `2.8.0`
+
+### Changed
+
 - Switch to new internal APIs
 - Update dependencies (Kotlin, Intellij, IdeaVim & Gradle)
-- **Breaking**: Needs IdeaVim version >= `2.8.0`
 
 ## 0.9.0
 
