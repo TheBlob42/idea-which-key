@@ -29,16 +29,18 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.9.0</strong>
+        <strong>0.10.0</strong>
+    </p>
+    <p>
+        <b>BREAKING CHANGE</b>: This version is only compatible with IdeaVim version >= 2.8.0
     </p>
     <ul>
-        <li>new 'by_key_prefix_last' sort option</li>
-        <li>make case-sensitivity for ordering configurable</li>
-        <li>fix dynamic reloading for several options</li>
+        <li>Switch to new internal APIs</li>
+        <li>Update dependencies</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.9.0</version>
+    <version>0.10.0</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
