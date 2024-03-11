@@ -9,6 +9,7 @@ import com.maddyhome.idea.vim.action.VimShortcutKeyAction
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.command.MappingMode
+import com.maddyhome.idea.vim.impl.state.toMappingMode
 import com.maddyhome.idea.vim.newapi.vim
 import com.maddyhome.idea.vim.options.OptionAccessScope
 import eu.theblob42.idea.whichkey.config.MappingConfig
@@ -35,8 +36,10 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
         PopupConfig.hidePopup()
 
         val editor = actionEvent.getData(PlatformDataKeys.EDITOR)
+        val vimEditor = editor?.vim
         val whichKeyOption = injector.optionGroup.getOption("which-key")
         if (editor != null &&
+            vimEditor != null &&
             whichKeyOption != null &&
             injector.optionGroup.getOptionValue(whichKeyOption, OptionAccessScope.EFFECTIVE(editor.vim)).asBoolean()
         ) {
@@ -47,12 +50,13 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
                 val mappingState = CommandState.getInstance(editor).mappingState
                 val typedKeySequence =
                     mappingState.keys + listOf(KeyStroke.getKeyStroke(inputEvent.keyCode, inputEvent.modifiersEx))
-                val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
+                val mappingMode = vimEditor.mode.toMappingMode()
+                val nestedMappings = MappingConfig.getNestedMappings(mappingMode, typedKeySequence)
                 val window = WindowManager.getInstance().getFrame(editor.project)
 
                 if (nestedMappings.isEmpty()) {
-                    if (mappingState.mappingMode != MappingMode.INSERT
-                        && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)
+                    if (mappingMode != MappingMode.INSERT
+                        && !MappingConfig.processWithUnknownMapping(mappingMode, typedKeySequence)
                     ) {
                         // reset the mapping state, do not open a popup & ignore the next call to `update`
                         mappingState.resetMappingSequence()

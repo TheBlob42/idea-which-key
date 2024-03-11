@@ -10,6 +10,7 @@ import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.command.MappingMode
+import com.maddyhome.idea.vim.impl.state.toMappingMode
 import com.maddyhome.idea.vim.newapi.vim
 import com.maddyhome.idea.vim.options.OptionAccessScope
 import eu.theblob42.idea.whichkey.config.MappingConfig
@@ -50,11 +51,12 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
 
                     val mappingState = commandState.mappingState
                     val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
-                    val nestedMappings = MappingConfig.getNestedMappings(mappingState.mappingMode, typedKeySequence)
+                    val mappingMode = editor.vim.mode.toMappingMode()
+                    val nestedMappings = MappingConfig.getNestedMappings(mappingMode, typedKeySequence)
 
                     if (nestedMappings.isEmpty()) {
-                        if (mappingState.mappingMode != MappingMode.INSERT
-                            && !MappingConfig.processWithUnknownMapping(mappingState.mappingMode, typedKeySequence)) {
+                        if (mappingMode != MappingMode.INSERT
+                            && !MappingConfig.processWithUnknownMapping(mappingMode, typedKeySequence)) {
                             // reset the mapping state, do not open a popup & ignore the next call to `execute`
                             mappingState.resetMappingSequence()
                             ignoreNextExecute = true
