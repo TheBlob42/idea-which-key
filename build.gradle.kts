@@ -33,7 +33,7 @@ tasks.withType<PatchPluginXmlTask> {
 intellij {
     version.set("2023.3.2")
     updateSinceUntilBuild.set(false)
-    plugins.set(listOf("IdeaVIM:2.8.0"))
+    plugins.set(listOf("IdeaVIM:2.10.0"))
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
