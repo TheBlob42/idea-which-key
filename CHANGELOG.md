@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.10.1
+
+### Changed
+
+- Match latest IdeaVim API
+- Update dependencies (Kotlin, Java, Intellij, IdeaVim)
+
 ## 0.10.0
 
 **Breaking**: Needs IdeaVim version >= `2.8.0`

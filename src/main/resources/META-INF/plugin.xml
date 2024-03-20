@@ -29,18 +29,14 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.10.0</strong>
-    </p>
-    <p>
-        <b>BREAKING CHANGE</b>: This version is only compatible with IdeaVim version >= 2.8.0
+        <strong>0.10.1</strong>
     </p>
     <ul>
-        <li>Switch to new internal APIs</li>
-        <li>Update dependencies</li>
+        <li>Updates to match the latest IdeaVim API</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.10.0</version>
+    <version>0.10.1</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>

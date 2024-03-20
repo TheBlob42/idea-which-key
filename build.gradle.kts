@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "eu.theblob42.idea.whichkey"
-version = "0.10.0"
+version = "0.10.1"
 
 repositories {
     mavenCentral()
@@ -22,20 +22,16 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 
 tasks.withType<PatchPluginXmlTask> {
-    sinceBuild.set("232")
+    sinceBuild.set("233")
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version.set("2023.3.2")
+    version.set("2023.3.3")
     updateSinceUntilBuild.set(false)
     plugins.set(listOf("IdeaVIM:2.10.0"))
-}
-
-tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
-
 }
