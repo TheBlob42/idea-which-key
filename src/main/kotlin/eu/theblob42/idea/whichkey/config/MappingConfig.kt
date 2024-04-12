@@ -313,7 +313,7 @@ object MappingConfig {
             .asSequence()
             .filter { it.key.startsWith("WhichKeyDesc_") }
             .map { it.value.asString() }
-            .map { it.replace("<leader>", leaderKey) }
+            .map { it.replace("<leader>", leaderKey).replace("\\", "<Bslash>") }
             .mapNotNull {
                 // destructure the regex groups into Pairs
                 DESCRIPTION_REGEX.find(it)?.groupValues?.let { (_, keySequence, description) ->
@@ -359,6 +359,10 @@ object MappingConfig {
         // special case for " "
         if (keyChar == ' ') {
             return "<Space>"
+        }
+
+        if (keyChar == '\\') {
+            return "<Bslash>"
         }
 
         if (keyCode == 0) {
