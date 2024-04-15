@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## Changed
+
+- Fix the handling of `<Bslash>` characters for mapping descriptions
+  - Fixes [#61](https://github.com/TheBlob42/idea-which-key/issues/61)
+- Fix edge case for mappings that accept a motion as argument & `WhichKey_ProcessUnknownMappings`
+  - This lead to issues with the builtin surround extension
+  - Fixes [#48](https://github.com/TheBlob42/idea-which-key/issues/48)
+
 ## 0.10.1
 
 ### Changed
