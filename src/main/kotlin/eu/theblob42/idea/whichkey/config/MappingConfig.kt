@@ -283,6 +283,13 @@ object MappingConfig {
 
         val operatorNode = injector.keyGroup.getKeyRoot(MappingMode.OP_PENDING)
 
+        // NOTE: there might be cases were this will lead to false positives (I have no idea tbh @_@) but it fixes the issue with the builtin surround extension (at least for now)
+        // the prefix is a valid mapping and the last key is a valid motion, so we don't want to block the motion here which probably "belongs" to the mapping
+        // for example: 'ys<motion>' and 'yss' (builtin surround) and pressing 'ysiw'
+        if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
+            return true
+        }
+
         // check for duplicate operator actions like dd, yy or cc
         if (keyStrokes.size == 2
                 && keyStrokes.first() == keyStrokes.last()
