@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.10.2
+
 ## Changed
 
 - Fix the handling of `<Bslash>` characters for mapping descriptions

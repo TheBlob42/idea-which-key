@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "eu.theblob42.idea.whichkey"
-version = "0.10.1"
+version = "0.10.2"
 
 repositories {
     mavenCentral()

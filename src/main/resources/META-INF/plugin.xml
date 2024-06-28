@@ -29,14 +29,15 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.10.1</strong>
+        <strong>0.10.2</strong>
     </p>
     <ul>
-        <li>Updates to match the latest IdeaVim API</li>
+        <li>Fixes handling of the Backslash character</li>
+        <li>Fixes edge case for mapping that accept motions (e.g. surround)</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.10.1</version>
+    <version>0.10.2</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
