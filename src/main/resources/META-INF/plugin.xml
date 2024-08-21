@@ -29,15 +29,14 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.10.2</strong>
+        <strong>0.10.3-test</strong>
     </p>
     <ul>
-        <li>Fixes handling of the Backslash character</li>
-        <li>Fixes edge case for mapping that accept motions (e.g. surround)</li>
+        <li>Try to fix issue with RubyMine</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.10.2</version>
+    <version>0.10.3-test</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
