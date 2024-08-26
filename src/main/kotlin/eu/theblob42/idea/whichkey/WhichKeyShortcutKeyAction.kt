@@ -1,5 +1,6 @@
 package eu.theblob42.idea.whichkey
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
@@ -30,6 +31,10 @@ class WhichKeyShortcutKeyAction: AnAction(), DumbAware {
             return
         }
         vimShortcutKeyAction.update(actionEvent)
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.EDT
     }
 
     override fun actionPerformed(actionEvent: AnActionEvent) {
