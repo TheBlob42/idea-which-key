@@ -2,9 +2,16 @@
 
 ## Unreleased
 
+## 0.10.3
+
+### Changed
+
+- Fix plugin crash due to exception with `ActionUpdateThread.OLD_EDT`
+  - Fixes [#73](https://github.com/TheBlob42/idea-which-key/issues/73)
+
 ## 0.10.2
 
-## Changed
+### Changed
 
 - Fix the handling of `<Bslash>` characters for mapping descriptions
   - Fixes [#61](https://github.com/TheBlob42/idea-which-key/issues/61)
