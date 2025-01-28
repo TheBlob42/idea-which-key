@@ -160,11 +160,11 @@ object MappingConfig {
             is VimString -> value.asString().toBoolean()
             else -> false
         }
-        val vimActionsPairs = if (showVimActions) {
-                VIM_ACTIONS[mode]?.entries
-                    ?.map { it.toPair() }
-                    ?: listOf()
-        } else listOf()
+        val vimActionsPairs =
+            VIM_ACTIONS[mode]?.entries
+                ?.map { it.key to if (showVimActions) it.value else "" }
+                ?: listOf()
+
 
         val nestedMappings = mutableMapOf<String, Mapping>()
         for ((mappedKeyStrokes, defaultDescription) in (keyMappingPairs + vimActionsPairs)) {
