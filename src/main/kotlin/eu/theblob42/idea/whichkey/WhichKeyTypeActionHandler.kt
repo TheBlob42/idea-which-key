@@ -49,8 +49,7 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
                 if (ideFrame != null) {
                     val startTime = System.currentTimeMillis() // save start time for the popup delay
 
-                    val mappingState = commandState.mappingState
-                    val typedKeySequence = mappingState.keys + listOf(KeyStroke.getKeyStroke(charTyped))
+                    val typedKeySequence = commandState.commandBuilder.keys + listOf(KeyStroke.getKeyStroke(charTyped))
                     val mappingMode = editor.vim.mode.toMappingMode()
                     val nestedMappings = MappingConfig.getNestedMappings(mappingMode, typedKeySequence)
 
@@ -58,7 +57,7 @@ class WhichKeyTypeActionHandler(private val vimTypedActionHandler: VimTypedActio
                         if (mappingMode != MappingMode.INSERT
                             && !MappingConfig.processWithUnknownMapping(mappingMode, typedKeySequence)) {
                             // reset the mapping state, do not open a popup & ignore the next call to `execute`
-                            mappingState.resetMappingSequence()
+                            commandState.mappingState.resetMappingSequence()
                             ignoreNextExecute = true
                             return
                         }
