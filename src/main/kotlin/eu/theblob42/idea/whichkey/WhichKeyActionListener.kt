@@ -28,10 +28,26 @@ class WhichKeyActionListener : AnActionListener {
         if (shortcut !is KeyboardShortcut) {
             return
         }
+
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
+        val mappingState = CommandState.getInstance(editor).mappingState
+        val escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
+        val mappingMode = editor.vim.mode.toMappingMode()
+
+        // check if user pressed escape and we are in the middle of a sequence
+        // and ESC is not a possible next element in the sequence.
+        // If this is the case, treat it as 'cancel'
+        if (listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke) == listOf(escapeKeyStroke)
+            && MappingConfig.getNestedMappings(mappingMode, mappingState.keys.toList()).isNotEmpty()
+            && MappingConfig.getNestedMappings(mappingMode, mappingState.keys + escapeKeyStroke).isEmpty()
+        ) {
+            mappingState.resetMappingSequence()
+            return
+        }
+
         // this event fires BEFORE handling by ideavim, so we need to construct the sequence ourselves
         val typedKeySequence =
-            CommandState.getInstance(editor).mappingState.keys + listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke)
+            mappingState.keys + listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke)
         // SPACE registers both as a shortcut as well as "typed space" event, so ignore the shortcut variant
         if (typedKeySequence == listOf(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0))) {
             return
