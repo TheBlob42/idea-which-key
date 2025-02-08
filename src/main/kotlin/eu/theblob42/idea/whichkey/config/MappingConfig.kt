@@ -311,20 +311,15 @@ object MappingConfig {
      * @return [Map] of 'key sequence' to 'custom description'
      */
     private fun extractWhichKeyDescriptions(): Map<String, String> {
-        val leaderKey = when (val leader = injector.variableService.getGlobalVariableValue("mapleader")) {
-            null -> DEFAULT_LEADER_KEY
-            is VimString -> leader.asString().map { keyToString(it, 0, 0) }.joinToString(separator = "")
-            else -> DEFAULT_LEADER_KEY
-        }
         return injector.variableService.getGlobalVariables().entries
             .asSequence()
             .filter { it.key.startsWith("WhichKeyDesc_") }
             .map { it.value.asString() }
-            .map { it.replace("<leader>", leaderKey).replace("\\", "<Bslash>") }
             .mapNotNull {
                 // destructure the regex groups into Pairs
                 DESCRIPTION_REGEX.find(it)?.groupValues?.let { (_, keySequence, description) ->
-                    Pair(keySequence, description)
+                    val keys = injector.parser.parseKeys(keySequence)
+                    Pair(keys.joinToString(separator = "") { keyToString(it) }, description)
                 }
             }
             .toMap()
