@@ -335,50 +335,6 @@ object MappingConfig {
      * @return String representation of the pressed key or key combination
      */
     fun keyToString(keyStroke: KeyStroke): String {
-        return keyToString(keyStroke.keyChar, keyStroke.keyCode, keyStroke.modifiers)
-    }
-
-    /**
-     * Convert a single key press or combination into an appropriate [String] representation
-     *
-     * @param keyChar Character associated with the pressed key
-     * @param keyCode The key code of the pressed key
-     * @param modifiers The modifier code for the pressed key combination (0 if not applicable)
-     * @return String representation of the pressed key or key combination
-     */
-    private fun keyToString(keyChar: Char, keyCode: Int, modifiers: Int): String {
-        // special case for " "
-        if (keyChar == ' ') {
-            return "<Space>"
-        }
-
-        if (keyChar == '\\') {
-            return "<Bslash>"
-        }
-
-        if (keyCode == 0) {
-            return keyChar.toString()
-        }
-
-        val mod = InputEvent.getModifiersExText(modifiers)
-        val key = KeyEvent.getKeyText(keyCode).let {
-            if (it.length == 1) {
-                it.lowercase()
-            } else {
-                it
-            }
-        }
-
-        if (mod.isNotEmpty()) {
-            val modifiedMod = mod
-                .replace("+", "-")
-                .replace("Alt", "A")
-                .replace("Ctrl", "C")
-                .replace("Shift", "S")
-                .replace("Escape", "Esc")
-            return "<${modifiedMod}-${key}>"
-        }
-
-        return if (key.length > 1) "<$key>" else key
+        return injector.parser.toKeyNotation(keyStroke)
     }
 }
