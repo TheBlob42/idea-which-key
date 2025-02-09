@@ -30,16 +30,18 @@ class WhichKeyActionListener : AnActionListener {
         }
 
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
-        val mappingState = CommandState.getInstance(editor).mappingState
+        val commandState = CommandState.getInstance(editor)
+        val mappingState = commandState.mappingState
         val escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)
         val mappingMode = editor.vim.mode.toMappingMode()
+        val vimCurrentKeySequence = commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() }
 
         // check if user pressed escape and we are in the middle of a sequence
         // and ESC is not a possible next element in the sequence.
         // If this is the case, treat it as 'cancel'
         if (listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke) == listOf(escapeKeyStroke)
-            && MappingConfig.getNestedMappings(mappingMode, mappingState.keys.toList()).isNotEmpty()
-            && MappingConfig.getNestedMappings(mappingMode, mappingState.keys + escapeKeyStroke).isEmpty()
+            && MappingConfig.getNestedMappings(mappingMode, vimCurrentKeySequence).isNotEmpty()
+            && MappingConfig.getNestedMappings(mappingMode, vimCurrentKeySequence + escapeKeyStroke).isEmpty()
         ) {
             mappingState.resetMappingSequence()
             return
@@ -47,7 +49,7 @@ class WhichKeyActionListener : AnActionListener {
 
         // this event fires BEFORE handling by ideavim, so we need to construct the sequence ourselves
         val typedKeySequence =
-            mappingState.keys + listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke)
+            vimCurrentKeySequence + listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke)
         // SPACE registers both as a shortcut as well as "typed space" event, so ignore the shortcut variant
         if (typedKeySequence == listOf(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0))) {
             return
@@ -59,8 +61,8 @@ class WhichKeyActionListener : AnActionListener {
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
 
         val commandState = CommandState.getInstance(editor)
-        // this event fires AFTER handling by ideavim, so the mappingState is already updated with the new key(s)
-        val typedKeySequence = commandState.mappingState.keys.toList()
+
+        val typedKeySequence = commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() }
         processKeySequence(editor, typedKeySequence)
     }
 
