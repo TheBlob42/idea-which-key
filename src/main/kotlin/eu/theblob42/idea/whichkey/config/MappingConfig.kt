@@ -311,20 +311,15 @@ object MappingConfig {
      * @return [Map] of 'key sequence' to 'custom description'
      */
     private fun extractWhichKeyDescriptions(): Map<String, String> {
-        val leaderKey = when (val leader = injector.variableService.getGlobalVariableValue("mapleader")) {
-            null -> DEFAULT_LEADER_KEY
-            is VimString -> leader.asString().map { keyToString(it, 0, 0) }.joinToString(separator = "")
-            else -> DEFAULT_LEADER_KEY
-        }
         return injector.variableService.getGlobalVariables().entries
             .asSequence()
             .filter { it.key.startsWith("WhichKeyDesc_") }
             .map { it.value.asString() }
-            .map { it.replace("<leader>", leaderKey).replace("\\", "<Bslash>") }
             .mapNotNull {
                 // destructure the regex groups into Pairs
                 DESCRIPTION_REGEX.find(it)?.groupValues?.let { (_, keySequence, description) ->
-                    Pair(keySequence, description)
+                    val keys = injector.parser.parseKeys(keySequence)
+                    Pair(keys.joinToString(separator = "") { keyToString(it) }, description)
                 }
             }
             .toMap()
@@ -351,50 +346,6 @@ object MappingConfig {
      * @return String representation of the pressed key or key combination
      */
     fun keyToString(keyStroke: KeyStroke): String {
-        return keyToString(keyStroke.keyChar, keyStroke.keyCode, keyStroke.modifiers)
-    }
-
-    /**
-     * Convert a single key press or combination into an appropriate [String] representation
-     *
-     * @param keyChar Character associated with the pressed key
-     * @param keyCode The key code of the pressed key
-     * @param modifiers The modifier code for the pressed key combination (0 if not applicable)
-     * @return String representation of the pressed key or key combination
-     */
-    private fun keyToString(keyChar: Char, keyCode: Int, modifiers: Int): String {
-        // special case for " "
-        if (keyChar == ' ') {
-            return "<Space>"
-        }
-
-        if (keyChar == '\\') {
-            return "<Bslash>"
-        }
-
-        if (keyCode == 0) {
-            return keyChar.toString()
-        }
-
-        val mod = InputEvent.getModifiersExText(modifiers)
-        val key = KeyEvent.getKeyText(keyCode).let {
-            if (it.length == 1) {
-                it.lowercase()
-            } else {
-                it
-            }
-        }
-
-        if (mod.isNotEmpty()) {
-            val modifiedMod = mod
-                .replace("+", "-")
-                .replace("Alt", "A")
-                .replace("Ctrl", "C")
-                .replace("Shift", "S")
-                .replace("Escape", "Esc")
-            return "<${modifiedMod}-${key}>"
-        }
-
-        return if (key.length > 1) "<$key>" else key
+        return injector.parser.toKeyNotation(keyStroke)
     }
 }
