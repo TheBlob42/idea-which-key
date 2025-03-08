@@ -154,11 +154,19 @@ If you prefer to just close the popup without any further processing you can con
 let g:WhichKey_ProcessUnknownMappings = "false"
 ```
 
-#### Caveats
+<details>
+<summary><b>Caveats</b></summary>
+
+##### Insert Mode
 
 This will never block insert mode mappings in order to enable mappings like `imap jk <Esc>` without interfering with characters you actually want to type. It also should¹ not interfere with operator commands or motions which are not "real" mappings like `hjkl`, `d`, `f`, etc.
 
 ¹*If you encounter any weird behavior please open an issue, as there might be edge cases not covered yet*
+
+##### Ending On A Special Key
+
+If you end your "unknown key sequence" on a special key (`<Esc>`, `<Tab>`, any combination with `Control`, `Alt` etc.) this option will not work as expected and your previous keys will still be executed. The reason is that Which-Key can't intercept those key presses and does not realize that it should not process any previous keys. See also the [Known Issues](#known-issues) section for more information on the matter
+</details>
 
 ### Order
 
