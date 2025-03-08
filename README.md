@@ -107,7 +107,9 @@ Due to this limitation and the lack of any more convenient data types (array, li
 
 ### VIM Actions
 
-By default Which-Key will only display key mappings which are defined in the `.ideavimrc` file. If you wish it can also display default VIM actions like `gg`, `zz`, `zt`, `<C-w>k`, etc. in the popup. For this you need to set the following variable within your `.ideavimrc`:
+Which-Key will display both key mappings which are defined in the `.ideavimrc` file as well as default VIM actions (e.g.  `gg`, `zz`, `zt`, `<C-w>k`), with an important difference between the two:
+User mappings will always be shown, even if they don't have a description set, while default vim actions will only be shown if they have a description set.
+You can get some default descriptions by setting the following variable within your `.ideavimrc`:
 
 ```vim
 let g:WhichKey_ShowVimActions = "true"
