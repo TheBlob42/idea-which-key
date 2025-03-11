@@ -25,6 +25,7 @@ class WhichKeyActionListener : AnActionListener {
         actions: MutableList<AnAction>,
         dataContext: DataContext
     ) {
+        PopupConfig.hidePopup()
         if (shortcut !is KeyboardShortcut) {
             return
         }
@@ -58,6 +59,7 @@ class WhichKeyActionListener : AnActionListener {
     }
 
     override fun afterEditorTyping(charTyped: Char, dataContext: DataContext) {
+        PopupConfig.hidePopup()
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
 
         val commandState = CommandState.getInstance(editor)
@@ -76,7 +78,6 @@ class WhichKeyActionListener : AnActionListener {
         val window = WindowManager.getInstance().getFrame(editor.project)
 
         if (nestedMappings.isEmpty()) {
-            PopupConfig.hidePopup()
             if (mappingMode != MappingMode.INSERT
                 && !MappingConfig.processWithUnknownMapping(mappingMode, typedKeySequence)
             ) {
