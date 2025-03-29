@@ -8,6 +8,7 @@ import com.maddyhome.idea.vim.key.*
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
 import eu.theblob42.idea.whichkey.provider.descriptions.CombinedDescriptionProvider
+import eu.theblob42.idea.whichkey.provider.descriptions.DefaultDescriptionProvider
 import eu.theblob42.idea.whichkey.provider.descriptions.DictionaryDescriptionProvider
 import eu.theblob42.idea.whichkey.util.getPath
 import eu.theblob42.idea.whichkey.provider.descriptions.FlatDescriptionProvider
@@ -18,6 +19,7 @@ import javax.swing.KeyStroke
 object MappingConfig {
     const val DEFAULT_PREFIX_LABEL = "Prefix"
     private val descriptionProvider = CombinedDescriptionProvider(
+        DefaultDescriptionProvider,
         FlatDescriptionProvider("WhichKeyDesc"),
         DictionaryDescriptionProvider("WhichKeyDesc")
     )
