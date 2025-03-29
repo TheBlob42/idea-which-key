@@ -1,3 +1,4 @@
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     java
@@ -25,6 +26,9 @@ dependencies {
         intellijIdeaCommunity("2023.3.3")
         pluginVerifier()
         plugins("IdeaVIM:2.10.0")
+
+        testFramework(TestFrameworkType.Platform)
+        testFramework(TestFrameworkType.JUnit5)
     }
 }
 
