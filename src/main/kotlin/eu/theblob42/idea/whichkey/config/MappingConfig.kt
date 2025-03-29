@@ -7,6 +7,8 @@ import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.key.*
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
+import eu.theblob42.idea.whichkey.provider.descriptions.CombinedDescriptionProvider
+import eu.theblob42.idea.whichkey.provider.descriptions.DictionaryDescriptionProvider
 import eu.theblob42.idea.whichkey.util.getPath
 import eu.theblob42.idea.whichkey.provider.descriptions.FlatDescriptionProvider
 import eu.theblob42.idea.whichkey.provider.mappings.UserMappingProvider
@@ -15,7 +17,10 @@ import javax.swing.KeyStroke
 
 object MappingConfig {
     const val DEFAULT_PREFIX_LABEL = "Prefix"
-    private val descriptionProvider = FlatDescriptionProvider("WhichKeyDesc")
+    private val descriptionProvider = CombinedDescriptionProvider(
+        FlatDescriptionProvider("WhichKeyDesc"),
+        DictionaryDescriptionProvider("WhichKeyDesc")
+    )
 
     private val processUnknownMappings: Boolean
         get() = when (val option = injector.variableService.getGlobalVariableValue("WhichKey_ProcessUnknownMappings")) {
