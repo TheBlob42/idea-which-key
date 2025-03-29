@@ -218,27 +218,29 @@ object MappingConfig {
      * @param keyStrokes The list of keystrokes to check
      * @return `true` if the sequence represents an actual mapping, `false` if they are just unrelated keystrokes
      */
-    fun isMapping(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
-        val seq = keyStrokes.joinToString { keyToString(it) }
-
-        // check if there is a custom user mapping for the given keystrokes
-        val isCustomMapping = injector.keyGroup.getKeyMapping(mode)
-            .asSequence()
-            .filterNotNull()
-            .filter { it.filterNotNull().size == it.size } // ignore mappings with null keystrokes
-            .filter { it.size == keyStrokes.size }
-            .map { it.joinToString { keyStroke -> keyToString(keyStroke!!) } }
-            .find { it == seq } != null
-
-        if (isCustomMapping) {
+    fun isAction(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
+        val root = injector.keyGroup.getKeyRoot(mode)
+        if (root.getPath(keyStrokes) is CommandNode<*>) {
             return true
         }
 
-        // check if there is an VIM "internal" mapping for the given keystrokes
-        return (VIM_ACTIONS[mode]?.keys ?: listOf())
-            .filter { it.size == keyStrokes.size }
-            .map { it.joinToString { keyStroke -> keyToString(keyStroke) } }
-            .find { it == seq } != null
+        return injector.keyGroup.getKeyMapping(mode)[keyStrokes] != null
+    }
+
+    /**
+     * Check if the given keystrokes represent the beginning of a valid key mapping (user or VIM internal)
+     *
+     * @param mode The [MappingMode] to check the keystrokes
+     * @param keyStrokes The list of keystrokes to check
+     * @return `true` if the sequence represents a mapping prefix, `false` if they are just unrelated keystrokes
+     */
+    fun isPrefix(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
+        val root = injector.keyGroup.getKeyRoot(mode)
+        if (root.getPath(keyStrokes) is CommandPartNode<*>) {
+            return true
+        }
+
+        return injector.keyGroup.getKeyMapping(mode).isPrefix(keyStrokes)
     }
 
     /**
@@ -260,12 +262,12 @@ object MappingConfig {
         }
 
         // maybe the given key sequence is actually a mapping (user or internal)
-        if (isMapping(mode, keyStrokes)) {
+        if (isAction(mode, keyStrokes)) {
             return true
         }
 
         // check if the given sequence might be an operator mapping
-        if (isMapping(MappingMode.OP_PENDING, keyStrokes)) {
+        if (isAction(MappingMode.OP_PENDING, keyStrokes)) {
             return true
         }
 
@@ -286,7 +288,7 @@ object MappingConfig {
         // NOTE: there might be cases were this will lead to false positives (I have no idea tbh @_@) but it fixes the issue with the builtin surround extension (at least for now)
         // the prefix is a valid mapping and the last key is a valid motion, so we don't want to block the motion here which probably "belongs" to the mapping
         // for example: 'ys<motion>' and 'yss' (builtin surround) and pressing 'ysiw'
-        if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
+        if (isAction(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
             return true
         }
 
