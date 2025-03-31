@@ -17,7 +17,7 @@ class DictionaryDescriptionProviderTest : BasePlatformTestCase() {
     }
 
     private fun parseExpression(config: String): VimDataType {
-        val executionContext = injector.executionContextManager.onEditor(myFixture.editor.vim)
+        val executionContext = injector.executionContextManager.getEditorExecutionContext(myFixture.editor.vim)
         return injector.vimscriptParser.parseExpression(config)!!
             .evaluate(myFixture.editor.vim, executionContext, Script())
     }

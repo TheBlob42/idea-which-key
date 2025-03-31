@@ -10,7 +10,6 @@ import eu.theblob42.idea.whichkey.model.Mapping
 import eu.theblob42.idea.whichkey.provider.descriptions.CombinedDescriptionProvider
 import eu.theblob42.idea.whichkey.provider.descriptions.DefaultDescriptionProvider
 import eu.theblob42.idea.whichkey.provider.descriptions.DictionaryDescriptionProvider
-import eu.theblob42.idea.whichkey.util.getPath
 import eu.theblob42.idea.whichkey.provider.descriptions.FlatDescriptionProvider
 import eu.theblob42.idea.whichkey.provider.mappings.UserMappingProvider
 import eu.theblob42.idea.whichkey.provider.mappings.VimMappingProvider
@@ -84,8 +83,8 @@ object MappingConfig {
      * @return `true` if the sequence represents an actual mapping, `false` if they are just unrelated keystrokes
      */
     fun isAction(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
-        val root = injector.keyGroup.getKeyRoot(mode)
-        if (root.getPath(keyStrokes) is CommandNode<*>) {
+        val root = injector.keyGroup.getBuiltinCommandsTrie(mode)
+        if (root.getData(keyStrokes) != null) {
             return true
         }
 
@@ -100,12 +99,8 @@ object MappingConfig {
      * @return `true` if the sequence represents a mapping prefix, `false` if they are just unrelated keystrokes
      */
     fun isPrefix(mode: MappingMode, keyStrokes: List<KeyStroke>): Boolean {
-        val root = injector.keyGroup.getKeyRoot(mode)
-        if (root.getPath(keyStrokes) is CommandPartNode<*>) {
-            return true
-        }
-
-        return injector.keyGroup.getKeyMapping(mode).isPrefix(keyStrokes)
+        return injector.keyGroup.getBuiltinCommandsTrie(mode).isPrefix(keyStrokes) ||
+                injector.keyGroup.getKeyMapping(mode).isPrefix(keyStrokes)
     }
 
     /**

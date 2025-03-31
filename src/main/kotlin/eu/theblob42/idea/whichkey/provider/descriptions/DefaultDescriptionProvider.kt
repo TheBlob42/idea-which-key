@@ -1,13 +1,9 @@
 package eu.theblob42.idea.whichkey.provider.descriptions
 
 import com.maddyhome.idea.vim.api.injector
-import com.maddyhome.idea.vim.key.CommandNode
-import com.maddyhome.idea.vim.key.CommandPartNode
-import com.maddyhome.idea.vim.key.RootNode
-import com.maddyhome.idea.vim.key.addLeafs
+import com.maddyhome.idea.vim.key.KeyStrokeTrie
 import eu.theblob42.idea.whichkey.provider.Description
 import eu.theblob42.idea.whichkey.provider.DescriptionProvider
-import eu.theblob42.idea.whichkey.util.getPath
 import javax.swing.KeyStroke
 
 // Copied from https://github.com/folke/which-key.nvim/blob/main/lua/which-key/plugins/presets.lua
@@ -133,24 +129,20 @@ object DefaultDescriptionProvider : DescriptionProvider {
         "zz" to "Center this line",
     )
 
-    private val rootNode = RootNode<String>().apply {
-            for (entry in defaultBindings) {
-                addLeafs(injector.parser.parseKeys(entry.key), entry.value)
-            }
+    private data class DescriptionHolder(val text: String)
+
+    private val rootNode = KeyStrokeTrie<DescriptionHolder>("root").apply {
+        for (entry in defaultBindings) {
+            add(injector.parser.parseKeys(entry.key), DescriptionHolder(entry.value))
         }
+    }
 
     override fun getDescriptions(path: List<KeyStroke>): List<Description> {
-        return when (val target = rootNode.getPath(path)) {
-            is CommandPartNode<String> -> {
-                target.entries.mapNotNull { (key, value) ->
-                    when(value) {
-                        is CommandNode<String> -> Description(key, value.actionHolder)
-                        else -> null
-                    }
-                }
-            }
-
-            else -> emptyList()
-        }
+        if (!rootNode.isPrefix(path))
+            return emptyList()
+        return rootNode
+            .getEntries(path)
+            .map { Description(it.key, it.data?.text) }
+            .toList()
     }
 }
