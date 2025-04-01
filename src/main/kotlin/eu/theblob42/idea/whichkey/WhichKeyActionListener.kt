@@ -41,8 +41,8 @@ class WhichKeyActionListener : AnActionListener {
         // and ESC is not a possible next element in the sequence.
         // If this is the case, treat it as 'cancel'
         if (listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke) == listOf(escapeKeyStroke)
-            && MappingConfig.getNestedMappings(mappingMode, vimCurrentKeySequence).isNotEmpty()
-            && MappingConfig.getNestedMappings(mappingMode, vimCurrentKeySequence + escapeKeyStroke).isEmpty()
+            && MappingConfig.isPrefix(mappingMode, vimCurrentKeySequence)
+            && !MappingConfig.isAction(mappingMode, vimCurrentKeySequence + escapeKeyStroke)
         ) {
             mappingState.resetMappingSequence()
             return
@@ -106,6 +106,10 @@ class WhichKeyActionListener : AnActionListener {
          * and therefore any subsequent key press would not execute any of the actions presented in the popup
          */
         if (CommandState.getInstance(editor).commandBuilder.expectedArgumentType == Argument.Type.DIGRAPH) {
+            return emptyList()
+        }
+
+        if (!MappingConfig.isPrefix(editor.vim.mode.toMappingMode(), typedKeySequence)) {
             return emptyList()
         }
 
