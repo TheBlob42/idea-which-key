@@ -3,7 +3,6 @@ package eu.theblob42.idea.whichkey
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.wm.WindowManager
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.CommandState
@@ -11,21 +10,23 @@ import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.impl.state.toMappingMode
 import com.maddyhome.idea.vim.newapi.vim
 import com.maddyhome.idea.vim.options.OptionAccessScope
+import eu.theblob42.idea.whichkey.config.DefaultPopupProvider
 import eu.theblob42.idea.whichkey.config.MappingConfig
-import eu.theblob42.idea.whichkey.config.PopupConfig
 import eu.theblob42.idea.whichkey.model.Mapping
+import eu.theblob42.idea.whichkey.provider.DebouncingPopupProvider
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
 class WhichKeyActionListener : AnActionListener {
     private var ignoreNextExecute = false
+    private val popupProvider = DebouncingPopupProvider(DefaultPopupProvider())
 
     override fun beforeShortcutTriggered(
         shortcut: Shortcut,
         actions: MutableList<AnAction>,
         dataContext: DataContext
     ) {
-        PopupConfig.hidePopup()
+        popupProvider.hidePopup()
         if (shortcut !is KeyboardShortcut) {
             return
         }
@@ -59,7 +60,7 @@ class WhichKeyActionListener : AnActionListener {
     }
 
     override fun afterEditorTyping(charTyped: Char, dataContext: DataContext) {
-        PopupConfig.hidePopup()
+        popupProvider.hidePopup()
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
 
         val commandState = CommandState.getInstance(editor)
@@ -70,12 +71,10 @@ class WhichKeyActionListener : AnActionListener {
 
     private fun processKeySequence(editor: Editor, typedKeySequence: List<KeyStroke>) {
         val vimEditor = editor.vim
-        val startTime = System.currentTimeMillis() // save start time for the popup delay
 
         val mappingMode = vimEditor.mode.toMappingMode()
         val mappingState = CommandState.getInstance(editor).mappingState
         val nestedMappings = getMappingsToDisplay(editor, typedKeySequence)
-        val window = WindowManager.getInstance().getFrame(editor.project)
 
         if (nestedMappings.isEmpty()) {
             if (mappingMode != MappingMode.INSERT
@@ -86,7 +85,7 @@ class WhichKeyActionListener : AnActionListener {
                 ignoreNextExecute = true
             }
         } else {
-            PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
+            popupProvider.showPopup(editor, typedKeySequence, nestedMappings)
         }
     }
 
