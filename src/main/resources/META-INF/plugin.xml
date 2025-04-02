@@ -45,4 +45,14 @@
         <vimExtension implementation="eu.theblob42.idea.whichkey.WhichKeyExtension" name="which-key"/>
     </extensions>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <additionalTextAttributes
+                scheme="Default"
+                file="colorSchemes/WhichKeyDefault.xml"/>
+        <additionalTextAttributes
+                scheme="Darcula"
+                file="colorSchemes/WhichKeyDarcula.xml"/>
+        <!--                <colorSettingsPage implementation="org.intellij.erlang.editor.ErlangColorSettingsPage"/>-->
+    </extensions>
+
 </idea-plugin>

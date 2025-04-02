@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--        val WHICHKEY_MAPPING_BINDING = TextAttributesKey.createTextAttributesKey("WHICHKEY_MAPPING_BINDING", DefaultLanguageHighlighterColors.KEYWORD)-->
+<!--        val WHICHKEY_MAPPING_ASSIGMENT = TextAttributesKey.createTextAttributesKey("WHICHKEY_MAPPING_ASSIGMENT", DefaultLanguageHighlighterColors.OPERATION_SIGN)-->
+<!--        val WHICHKEY_MAPPING_ICON = TextAttributesKey.createTextAttributesKey("WHICHKEY_MAPPING_ICON", DefaultLanguageHighlighterColors.OPERATION_SIGN)-->
+<!--        val WHICHKEY_MAPPING_DESCRIPTION = TextAttributesKey.createTextAttributesKey("WHICHKEY_MAPPING_DESCRIPTION", DefaultLanguageHighlighterColors.IDENTIFIER)-->
+<list>
+    <option name="WHICHKEY_MAPPING_BINDING">
+        <value>
+            <option name="FOREGROUND" value="66A6BE"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_ASSIGMENT">
+        <value>
+            <option name="FOREGROUND" value="636DA6"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_ICON">
+        <value>
+            <option name="FOREGROUND" value="636DA6"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_DESCRIPTION">
+        <value>
+            <option name="FOREGROUND" value="C099FF"/>
+        </value>
+    </option>
+</list>

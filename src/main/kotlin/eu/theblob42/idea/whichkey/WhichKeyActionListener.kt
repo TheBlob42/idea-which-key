@@ -10,8 +10,8 @@ import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.impl.state.toMappingMode
 import com.maddyhome.idea.vim.newapi.vim
 import com.maddyhome.idea.vim.options.OptionAccessScope
-import eu.theblob42.idea.whichkey.config.DefaultPopupProvider
 import eu.theblob42.idea.whichkey.config.MappingConfig
+import eu.theblob42.idea.whichkey.config.NewPopupProvider
 import eu.theblob42.idea.whichkey.model.Mapping
 import eu.theblob42.idea.whichkey.provider.DebouncingPopupProvider
 import java.awt.event.KeyEvent
@@ -19,7 +19,7 @@ import javax.swing.KeyStroke
 
 class WhichKeyActionListener : AnActionListener {
     private var ignoreNextExecute = false
-    private val popupProvider = DebouncingPopupProvider(DefaultPopupProvider())
+    private val popupProvider = DebouncingPopupProvider(NewPopupProvider())
 
     override fun beforeShortcutTriggered(
         shortcut: Shortcut,
