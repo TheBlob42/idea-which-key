@@ -11,6 +11,7 @@ import java.awt.*
 import javax.swing.*
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.ui.popup.*
+import com.intellij.util.ui.UIUtil
 import eu.theblob42.idea.whichkey.model.Mappings
 import eu.theblob42.idea.whichkey.provider.PopupProvider
 import java.awt.event.KeyEvent
@@ -118,8 +119,10 @@ class NewPopupProvider: PopupProvider {
             Style.BOTTOM ->
                 popup.show(RelativePoint(editor.component, Point(0, contentSize.height - popupHeight)))
 
-            Style.RIGHT ->
-            popup.show(RelativePoint(editor.component, Point(contentSize.width-preferredSize.width, contentSize.height - popupHeight)))
+            Style.RIGHT -> {
+                val scrollbarPadding = UIUtil.getScrollBarWidth()
+                popup.show(RelativePoint(editor.component, Point(contentSize.width-preferredSize.width - scrollbarPadding, contentSize.height - popupHeight - scrollbarPadding)))
+            }
         }
         currentPopup = popup
     }
