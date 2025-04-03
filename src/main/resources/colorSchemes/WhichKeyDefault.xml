@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+    <option name="WHICHKEY_MAPPING_BINDING">
+        <value>
+            <option name="FOREGROUND" value="DCF2B0"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_ASSIGMENT">
+        <value>
+            <option name="FOREGROUND" value="c2eabd"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_ICON">
+        <value>
+            <option name="FOREGROUND" value="c0babc"/>
+        </value>
+    </option>
+    <option name="WHICHKEY_MAPPING_DESCRIPTION">
+        <value>
+            <option name="FOREGROUND" value="c7ac92"/>
+        </value>
+    </option>
+</list>
