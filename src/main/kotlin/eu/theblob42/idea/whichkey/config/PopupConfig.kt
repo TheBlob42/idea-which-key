@@ -70,6 +70,7 @@ object PopupConfig {
      * @param nestedMappings A [List] of nested mappings to display
      * @param startTime Timestamp to consider for the calculation of the popup delay
      */
+    @OptIn(DelicateCoroutinesApi::class)
     fun showPopup(ideFrame: JFrame, typedKeys: List<KeyStroke>, nestedMappings: List<Pair<String, Mapping>>, startTime: Long) {
         if (nestedMappings.isEmpty()) {
             return
