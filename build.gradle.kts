@@ -24,7 +24,7 @@ dependencies {
     intellijPlatform {
         intellijIdeaCommunity("2023.3.3")
         pluginVerifier()
-        plugins("IdeaVIM:2.10.0")
+        plugins("IdeaVIM:2.24.0")
     }
 }
 

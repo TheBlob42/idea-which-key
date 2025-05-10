@@ -1,13 +1,8 @@
 package eu.theblob42.idea.whichkey.config
 
-import com.maddyhome.idea.vim.action.change.LazyVimCommand
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
-import com.maddyhome.idea.vim.command.DuplicableOperatorAction
 import com.maddyhome.idea.vim.command.MappingMode
-import com.maddyhome.idea.vim.key.CommandNode
-import com.maddyhome.idea.vim.key.CommandPartNode
-import com.maddyhome.idea.vim.key.Node
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
@@ -39,39 +34,16 @@ object MappingConfig {
         // since the VIM default mappings do not change during runtime we are extracting them once during initialization
         for (mode in enumValues<MappingMode>()) {
             val modeMap = VIM_ACTIONS.getOrPut(mode) { mutableMapOf() }
-            injector.keyGroup.getKeyRoot(mode)
+            injector.keyGroup.getBuiltinCommandsTrie(mode).getEntries()
                 // we are only interested in VIM actions with more than one key stroke
                 .filter {
-                    it.value is CommandPartNode
+                    it.data !== null
                 }
                 .forEach {
-                    extractVimActions(modeMap, listOf(it.key), it.value)
+                    modeMap[listOf(it.key)] = it.data!!.actionId
                 }
         }
     }
-
-    /**
-     * Extract the given VIM default mapping into a more usable format
-     * This function walks the tree of [Node]s and writes all found mappings along the way in to the given [vimActionsMap]
-     * The function itself does not have a return value
-     *
-     * @param vimActionsMap The (mutable) map which should be filled with the results
-     * @param keyStrokes The [KeyStroke]s related to the given [node]
-     * @param node The current mapping node
-     */
-    private fun extractVimActions(vimActionsMap: MutableMap<List<KeyStroke>, String>, keyStrokes: List<KeyStroke>, node: Node<LazyVimCommand>) {
-        if (node is CommandPartNode<LazyVimCommand>) {
-            node.map {
-                val keys = keyStrokes + listOf(it.key)
-                extractVimActions(vimActionsMap, keys, it.value)
-            }
-            return
-        }
-
-        val actionId = (node as CommandNode<LazyVimCommand>).actionHolder.instance.id
-        vimActionsMap[keyStrokes] = actionId
-    }
-
 
     /**
      * Return all nested mappings which are direct children of the given key sequence
@@ -148,12 +120,7 @@ object MappingConfig {
          */
         val keyMappingPairs = keyMapping
             .filterNotNull()
-            // check that all keystrokes are non-null (otherwise ignore for now)
-            .filter { it.filterNotNull().size == it.size }
-            .map {
-                it.map { keyStroke -> keyStroke!! }
-            }
-            // final mapping to pairs
+            // mapping to pairs
             .map {
                 Pair(it.toList(), keyMapping[it]?.getPresentableString() ?: "no description")
             }
@@ -227,10 +194,8 @@ object MappingConfig {
         // check if there is a custom user mapping for the given keystrokes
         val isCustomMapping = injector.keyGroup.getKeyMapping(mode)
             .asSequence()
-            .filterNotNull()
-            .filter { it.filterNotNull().size == it.size } // ignore mappings with null keystrokes
             .filter { it.size == keyStrokes.size }
-            .map { it.joinToString { keyStroke -> keyToString(keyStroke!!) } }
+            .map { it.joinToString { keyStroke -> keyToString(keyStroke) } }
             .find { it == seq } != null
 
         if (isCustomMapping) {
@@ -271,10 +236,9 @@ object MappingConfig {
 
         // is this a root key that expects a motion or digraph argument then providing this motion or digraph should not be blocked
         if (prefix.size == 1) {
-            val prefixKey = prefix.first()
-            val argTypes = injector.keyGroup.getKeyRoot(mode)
-                .filter { it.key == prefixKey && it.value is CommandNode }
-                .map { (it.value as CommandNode).actionHolder.instance.argumentType }
+            val argTypes = injector.keyGroup.getBuiltinCommandsTrie(mode).getEntries()
+                .filter { it.data !== null }
+                .map { it.data!!.instance.argumentType }
             if (argTypes.any { it == Argument.Type.MOTION || it == Argument.Type.DIGRAPH }) {
                 return true
             }
@@ -283,12 +247,8 @@ object MappingConfig {
         // the prefix is a valid custom mapping and the last key is a valid motion
         // therefore we don't want to block the motion here which probably "belongs" to the mapping
         // e.g. 'ys<motion>' (e.g. `ysiw`) and 'yss' from the builtin surround plugin
-        val operatorNode = injector.keyGroup.getKeyRoot(MappingMode.OP_PENDING)
-        if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
-            return true
-        }
-
-        return false
+        val operatorNode = injector.keyGroup.getBuiltinCommandsTrie(MappingMode.OP_PENDING).getEntries()
+        return isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }
     }
 
     /**
