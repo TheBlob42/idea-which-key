@@ -3,7 +3,10 @@ package eu.theblob42.idea.whichkey
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actionSystem.*
 import com.intellij.openapi.wm.WindowManager
+import com.maddyhome.idea.vim.KeyHandler
+import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.CommandState
@@ -17,8 +20,35 @@ import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
+class BlockNextTypedActionHandler(private val originalHandler: VimTypedActionHandler) : TypedActionHandlerEx {
+    override fun execute(editor: Editor, char: Char, dataContext: DataContext) {
+        // do nothing then restore the original handler
+        TypedAction.getInstance().setupRawHandler(originalHandler)
+        return
+    }
+
+    override fun beforeExecute(editor: Editor, char: Char, dataContext: DataContext, plan: ActionPlan) {
+        return
+    }
+}
+
 class WhichKeyActionListener : AnActionListener {
-    private var ignoreNextExecute = false
+    private var blockNextAction: Boolean = false
+
+    override fun afterActionPerformed(action: AnAction, event: AnActionEvent, result: AnActionResult) {
+        if (blockNextAction) {
+            blockNextAction = false
+
+            val dataContext = event.dataContext
+            val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
+
+            KeyHandler.getInstance().handleKey(
+                editor.vim,
+                KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK),
+                dataContext.vim,
+                KeyHandler.getInstance().keyHandlerState)
+        }
+    }
 
     override fun beforeShortcutTriggered(
         shortcut: Shortcut,
@@ -55,20 +85,20 @@ class WhichKeyActionListener : AnActionListener {
         if (typedKeySequence == listOf(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0))) {
             return
         }
-        processKeySequence(editor, typedKeySequence)
+        processKeySequence(editor, typedKeySequence, true)
     }
 
-    override fun afterEditorTyping(charTyped: Char, dataContext: DataContext) {
+    override fun beforeEditorTyping(charTyped: Char, dataContext: DataContext) {
         PopupConfig.hidePopup()
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
 
         val commandState = CommandState.getInstance(editor)
 
-        val typedKeySequence = commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() }
-        processKeySequence(editor, typedKeySequence)
+        val typedKeySequence = commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() } + listOf(KeyStroke.getKeyStroke(charTyped))
+        processKeySequence(editor, typedKeySequence, false)
     }
 
-    private fun processKeySequence(editor: Editor, typedKeySequence: List<KeyStroke>) {
+    private fun processKeySequence(editor: Editor, typedKeySequence: List<KeyStroke>, isShortcut: Boolean) {
         val vimEditor = editor.vim
         val startTime = System.currentTimeMillis() // save start time for the popup delay
 
@@ -83,7 +113,21 @@ class WhichKeyActionListener : AnActionListener {
             ) {
                 // reset the mapping state, do not open a popup & ignore the next call to `update`
                 mappingState.resetMappingSequence()
-                ignoreNextExecute = true
+
+                if (isShortcut) {
+                    // this is a hack to block the next action :-)
+                    // we are switching to the command line by pressing ':'
+                    // then we use CTRL-V to insert the next key literally
+                    // in the afterActionPerformed method we will leave the command line via CTRL-C
+                    mappingState.addKey(KeyStroke.getKeyStroke(':'))
+                    mappingState.addKey(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK))
+                    blockNextAction = true
+                } else {
+                    // block the next typing by using a custom raw handler which will be reset afterwards
+                    val typedAction = TypedAction.getInstance()
+                    val rawTypedActionHandler = typedAction.rawHandler as VimTypedActionHandler
+                    typedAction.setupRawHandler(BlockNextTypedActionHandler(rawTypedActionHandler))
+                }
             }
         } else {
             PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
