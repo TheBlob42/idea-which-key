@@ -264,41 +264,24 @@ object MappingConfig {
             return true
         }
 
-        // check if the given sequence might be an operator mapping
-        if (isMapping(MappingMode.OP_PENDING, keyStrokes)) {
-            return true
-        }
-
-        val node = injector.keyGroup.getKeyRoot(mode)
         val prefix = keyStrokes.dropLast(1)
 
-        // check for a motion argument, even if the new key is not a valid motion its action would be blocked by default
-        if (node.any {
-            it.key == prefix.last()
-                    && it.value is CommandNode
-                    && (it.value as CommandNode).actionHolder.instance.argumentType == Argument.Type.MOTION
-        }) {
-            return true
+        // is this a root key that expects a motion or digraph argument then providing this motion or digraph should not be blocked
+        if (prefix.size == 1) {
+            val prefixKey = prefix.first()
+            val argTypes = injector.keyGroup.getKeyRoot(mode)
+                .filter { it.key == prefixKey && it.value is CommandNode }
+                .map { (it.value as CommandNode).actionHolder.instance.argumentType }
+            if (argTypes.any { it == Argument.Type.MOTION || it == Argument.Type.DIGRAPH }) {
+                return true
+            }
         }
 
+        // the prefix is a valid custom mapping and the last key is a valid motion
+        // therefore we don't want to block the motion here which probably "belongs" to the mapping
+        // e.g. 'ys<motion>' (e.g. `ysiw`) and 'yss' from the builtin surround plugin
         val operatorNode = injector.keyGroup.getKeyRoot(MappingMode.OP_PENDING)
-
-        // NOTE: there might be cases were this will lead to false positives (I have no idea tbh @_@) but it fixes the issue with the builtin surround extension (at least for now)
-        // the prefix is a valid mapping and the last key is a valid motion, so we don't want to block the motion here which probably "belongs" to the mapping
-        // for example: 'ys<motion>' and 'yss' (builtin surround) and pressing 'ysiw'
         if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
-            return true
-        }
-
-        // check for duplicate operator actions like dd, yy or cc
-        if (keyStrokes.size == 2
-                && keyStrokes.first() == keyStrokes.last()
-                && operatorNode.any {
-                    it.key == keyStrokes.first()
-                            && it.value is CommandNode
-                            && (it.value as CommandNode).actionHolder.instance is DuplicableOperatorAction
-                }
-        ) {
             return true
         }
 
