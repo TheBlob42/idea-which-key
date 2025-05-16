@@ -8,6 +8,15 @@
   - Enables proper functionality for special keys like `<C-c>`, `<M-c>`, `<Esc>`
   - Fixes **the** big know issues of the plugin
   - Fixes [#52](https://github.com/TheBlob42/idea-which-key/issues/52) and [#81](https://github.com/TheBlob42/idea-which-key/issues/81)
+- Properly check for recursive mappings
+  - Fixes [#71](https://github.com/TheBlob42/idea-which-key/issues/71)
+  ```vim
+  nnoremap <space>abc :action ShowTips<CR>
+  " , should trigger the popup showing the 'a' prefix as next option
+  nmap , <space>
+  " ; should NOT trigger the popup but instead execute the 'original' mapping for <space>
+  nnoremap ; <space>
+  ```
 
 ## 0.10.3
 
