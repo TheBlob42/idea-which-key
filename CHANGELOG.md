@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+
+- Refactor to use `AnActionListener` on the [Message Bus](https://plugins.jetbrains.com/docs/intellij/messaging-infrastructure.html#message-bus)
+  - Enables proper functionality for special keys like `<C-c>`, `<M-c>`, `<Esc>`
+  - Fixes **the** big know issues of the plugin
+  - Fixes [#52](https://github.com/TheBlob42/idea-which-key/issues/52) and [#81](https://github.com/TheBlob42/idea-which-key/issues/81)
+
 ## 0.10.3
 
 ### Changed
@@ -43,7 +50,7 @@
 - New `g:WhichKey_SortCaseSensitive` variable
   - Controls if the sorting of elements in the popup should be case-sensitive or not (default: `true`)
 
-### Changes
+### Changed
 
 - Fix missing getters for several properties to make them reloadable without restart
   - `WhichKey_DefaultDelay`
