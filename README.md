@@ -157,15 +157,10 @@ let g:WhichKey_ProcessUnknownMappings = "false"
 <details>
 <summary><b>Caveats</b></summary>
 
-##### Insert Mode
+##### Insert & Operator-Pending Mode
 
-This will never block insert mode mappings in order to enable mappings like `imap jk <Esc>` without interfering with characters you actually want to type. It also should¹ not interfere with operator commands or motions which are not "real" mappings like `hjkl`, `d`, `f`, etc.
+This will never block insert mode mappings in order to enable mappings like `imap jk <Esc>` without interfering with characters you actually want to type. Similar we also do not block any operator-pending mode key presses (e.g. for `d`, `f` etc.)
 
-¹*If you encounter any weird behavior please open an issue, as there might be edge cases not covered yet*
-
-##### Ending On A Special Key
-
-If you end your "unknown key sequence" on a special key (`<Esc>`, `<Tab>`, any combination with `Control`, `Alt` etc.) this option will not work as expected and your previous keys will still be executed. The reason is that Which-Key can't intercept those key presses and does not realize that it should not process any previous keys. See also the [Known Issues](#known-issues) section for more information on the matter
 </details>
 
 ### Order
@@ -215,28 +210,12 @@ You can configure the appearance of certain UI elements by setting the following
 
 ## Known Issues
 
-The way the plugin injects itself into the flow of IdeaVIM to provide its features is a little "hacky" and you might encounter some inconsistencies. If you encounter anything not documented open an issue so we can check and maybe fix it. These are the ones that I am aware of
+### Easymotion
 
-### Special Prefixes
+If you are using the [easymotion](https://github.com/AlexPl292/IdeaVim-EasyMotion) plugin you might see the popup being displayed when you want to select a label for a key that also starts a multi key mapping:
 
-Consider the following mapping sequence example which contains a modified key press (`<C-a>`) within:
+- Configure a multi key mapping like `nnoremap gt :action ShowTips<CR>`
+- Trigger any easymotion mapping like `<Plug>(easymotion-s)`
+- Pressing `g` will now trigger the popup and "block" your view
 
-> What the mapping does is not important for the example
-
-```text
-noremap g<C-a>bc ...
-```
-
-If you are about to activate this mapping the following will happen:
-
-| Press   | What will happen                                   |
-| ---     | ---                                                |
-| `g`     | The popup will appear and show `<C-a>` as a prefix |
-| `<C-a>` | The popup will close itself                        |
-| `b`     | The popup will reopen and show `c` as a command    |
-| `c`     | This will close the popup and execute your mapping |
-
-
-The reason for this is that we currently have no way to intercept modified & special key presses like `<C-a>`, `<Esc>`, `<A-a>` etc. Vim internal actions like `<C-d>` or `<C-o>` are handled as a custom action instead of being processed by a general handler like "regular" key presses
-
-If you have more knowledge about the internals of IdeaVIM in this regard or have another idea how to solve this issue, please open an issue or PR
+So far there is no workaround for this issues, but a fix is planned once I figure it out
