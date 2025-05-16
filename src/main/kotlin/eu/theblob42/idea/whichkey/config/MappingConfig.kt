@@ -107,7 +107,9 @@ object MappingConfig {
             replacedKeyStrokes.add(keyStroke)
             val mapping = injector.keyGroup.getKeyMapping(mode)[replacedKeyStrokes]
 
-            if (mapping != null && mapping is ToKeysMappingInfo) {
+            if (mapping != null
+                && mapping is ToKeysMappingInfo
+                && mapping.isRecursive) {
                 replacedKeyStrokes = mapping.toKeys.toMutableList()
             }
         }
@@ -120,6 +122,7 @@ object MappingConfig {
         val sequenceMapping = injector.keyGroup.getKeyMapping(mode)[keyStrokes]
         if (sequenceMapping != null
             && sequenceMapping is ToKeysMappingInfo
+            && sequenceMapping.isRecursive
             && sequenceMapping.toKeys != replacedKeyStrokes){
             nestedMappings.putAll(extractNestedMappings(mode, sequenceMapping.toKeys,whichKeyDescriptions))
         }
