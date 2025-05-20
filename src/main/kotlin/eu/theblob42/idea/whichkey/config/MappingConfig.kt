@@ -157,15 +157,9 @@ object MappingConfig {
             .map {
                 Pair(it.toList(), keyMapping[it]?.getPresentableString() ?: "no description")
             }
-        // check .ideavimrc if the default VIM actions should be displayed along other mappings (default: false)
-        val showVimActions = when (val value = injector.variableService.getGlobalVariableValue("WhichKey_ShowVimActions")) {
-            null -> false
-            is VimString -> value.asString().toBoolean()
-            else -> false
-        }
         val vimActionsPairs =
             VIM_ACTIONS[mode]?.entries
-                ?.map { it.key to if (showVimActions) it.value else "" }
+                ?.map { it.key to "" }
                 ?: listOf()
 
 
@@ -302,7 +296,14 @@ object MappingConfig {
             is VimString -> leader.asString().map { keyToString(it, 0, 0) }.joinToString(separator = "")
             else -> DEFAULT_LEADER_KEY
         }
-        return injector.variableService.getGlobalVariables().entries
+        // check .ideavimrc if the default VIM actions should be displayed along other mappings (default: false)
+        val showVimActions = when (val value = injector.variableService.getGlobalVariableValue("WhichKey_ShowVimActions")) {
+            null -> false
+            is VimString -> value.asString().toBoolean()
+            else -> false
+        }
+        val vimDescriptions = (if (showVimActions) defaultBindings else emptyMap())
+        return vimDescriptions + injector.variableService.getGlobalVariables().entries
             .asSequence()
             .filter { it.key.startsWith("WhichKeyDesc_") }
             .map { it.value.asString() }
