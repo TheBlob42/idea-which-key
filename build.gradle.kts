@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     java
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.1.21"
     id("org.jetbrains.intellij.platform") version "2.3.0"
 }
 
@@ -16,13 +17,10 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.21")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
-
     testImplementation("junit", "junit", "4.12")
 
     intellijPlatform {
-        intellijIdeaCommunity("2023.3.3")
+        intellijIdeaCommunity("2025.1")
         pluginVerifier()
         plugins("IdeaVIM:2.24.0")
     }
@@ -46,26 +44,26 @@ intellijPlatform {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
 tasks {
     compileKotlin {
-        kotlinOptions {
-            jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 
     compileTestKotlin {
-        kotlinOptions {
-            jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 }
