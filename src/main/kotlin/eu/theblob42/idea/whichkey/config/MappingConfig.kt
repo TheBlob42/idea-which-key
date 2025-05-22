@@ -249,7 +249,11 @@ object MappingConfig {
         // therefore we don't want to block the motion here which probably "belongs" to the mapping
         // e.g. 'ys<motion>' (e.g. `ysiw`) and 'yss' from the builtin surround plugin
         val operatorNode = injector.keyGroup.getBuiltinCommandsTrie(MappingMode.OP_PENDING).getEntries()
-        return isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }
+        if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
+            return true
+        }
+
+        return false
     }
 
     /**
