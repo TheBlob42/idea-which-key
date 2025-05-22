@@ -35,12 +35,30 @@ object MappingConfig {
         for (mode in enumValues<MappingMode>()) {
             val modeMap = VIM_ACTIONS.getOrPut(mode) { mutableMapOf() }
             injector.keyGroup.getBuiltinCommandsTrie(mode).getEntries()
-                // we are only interested in VIM actions with more than one key stroke
-                .filter {
-                    it.data !== null
+                .mapNotNull {
+                    if (it.data == null) {
+                        null
+                    }
+
+                    var entry = it
+                    val tmpKeyStrokes = mutableListOf(entry.key)
+                    // rebuild the keystroke sequence by iterating through the parent nodes
+                    // omit the "root node" as it is not related to any actual keystroke
+                    while (entry.parent != null && entry.parent!!.parent != null) {
+                        entry = entry.parent!!
+                        // add parent keystrokes in front, to retain the correct order
+                        tmpKeyStrokes.add(0, entry.key)
+                    }
+
+                    // we are only interested in VIM actions with more than one keystroke
+                    if (tmpKeyStrokes.size == 1) {
+                        null
+                    }
+
+                    Pair(tmpKeyStrokes.toList(), it.data!!.actionId)
                 }
                 .forEach {
-                    modeMap[listOf(it.key)] = it.data!!.actionId
+                    modeMap[it.first] = it.second
                 }
         }
     }
