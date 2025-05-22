@@ -3,6 +3,8 @@ package eu.theblob42.idea.whichkey.config
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.MappingMode
+import com.maddyhome.idea.vim.handler.MotionActionHandler
+import com.maddyhome.idea.vim.handler.TextObjectActionHandler
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
@@ -29,6 +31,11 @@ object MappingConfig {
      * This value only considers mappings which have more than one key stroke
      */
     private val VIM_ACTIONS = mutableMapOf<MappingMode, MutableMap<List<KeyStroke>, String>>()
+
+    /**
+     * All keystrokes that start a motion in operator-pending mode
+     */
+    private val OP_MOTION_KEYSTROKES: Set<KeyStroke>
 
     init {
         // since the VIM default mappings do not change during runtime we are extracting them once during initialization
@@ -61,6 +68,20 @@ object MappingConfig {
                     modeMap[it.first] = it.second
                 }
         }
+
+        OP_MOTION_KEYSTROKES = injector.keyGroup.getBuiltinCommandsTrie(MappingMode.OP_PENDING)
+            .getEntries()
+            // we are only interested in motions and text object actions
+            .filter { it.data?.instance is MotionActionHandler || it.data?.instance is TextObjectActionHandler }
+            .map {
+                var entry = it
+                // omit the root node as it does not contain any keystroke information
+                while (entry.parent != null && entry.parent!!.parent != null) {
+                    entry = entry.parent!!
+                }
+                entry.key
+            }
+            .toSet()
     }
 
     /**
@@ -265,9 +286,8 @@ object MappingConfig {
 
         // the prefix is a valid custom mapping and the last key is a valid motion
         // therefore we don't want to block the motion here which probably "belongs" to the mapping
-        // e.g. 'ys<motion>' (e.g. `ysiw`) and 'yss' from the builtin surround plugin
-        val operatorNode = injector.keyGroup.getBuiltinCommandsTrie(MappingMode.OP_PENDING).getEntries()
-        if (isMapping(mode, prefix) && operatorNode.any { it.key == keyStrokes.last() }) {
+        // for example 'ys<motion>' (e.g. `ysiw`) and 'yss' from the builtin surround plugin
+        if (isMapping(mode, prefix) && OP_MOTION_KEYSTROKES.contains(keyStrokes.last())) {
             return true
         }
 
