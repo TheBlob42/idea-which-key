@@ -236,8 +236,9 @@ object MappingConfig {
 
         // is this a root key that expects a motion or digraph argument then providing this motion or digraph should not be blocked
         if (prefix.size == 1) {
+            val prefixKey = prefix.first()
             val argTypes = injector.keyGroup.getBuiltinCommandsTrie(mode).getEntries()
-                .filter { it.data !== null }
+                .filter { it.key == prefixKey && it.data !== null }
                 .map { it.data!!.instance.argumentType }
             if (argTypes.any { it == Argument.Type.MOTION || it == Argument.Type.DIGRAPH }) {
                 return true
