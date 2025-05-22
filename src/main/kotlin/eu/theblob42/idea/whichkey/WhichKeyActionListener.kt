@@ -7,11 +7,11 @@ import com.intellij.openapi.editor.actionSystem.ActionPlan
 import com.intellij.openapi.editor.actionSystem.TypedAction
 import com.intellij.openapi.editor.actionSystem.TypedActionHandlerEx
 import com.intellij.openapi.wm.WindowManager
-import com.maddyhome.idea.vim.KeyHandler
 import com.maddyhome.idea.vim.VimTypedActionHandler
+import com.maddyhome.idea.vim.KeyHandler
+import com.maddyhome.idea.vim.api.VimEditor
 import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
-import com.maddyhome.idea.vim.command.CommandState
 import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.command.MappingState
 import com.maddyhome.idea.vim.impl.state.toMappingMode
@@ -64,8 +64,9 @@ class WhichKeyActionListener : AnActionListener {
         }
 
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
-        val commandState = CommandState.getInstance(editor)
-        val vimCurrentKeySequence = commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() }
+        val keyHandlerState = KeyHandler.getInstance().keyHandlerState
+        val mappingState = keyHandlerState.mappingState
+        val vimCurrentKeySequence = mappingState.keys.toList().ifEmpty { keyHandlerState.commandBuilder.keys.toList() }
 
         // this event fires BEFORE handling by IdeaVim, so we need to construct the sequence ourselves
         val typedKeySequence = vimCurrentKeySequence + listOfNotNull(shortcut.firstKeyStroke, shortcut.secondKeyStroke)
@@ -90,9 +91,9 @@ class WhichKeyActionListener : AnActionListener {
         PopupConfig.hidePopup()
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
 
-        val commandState = CommandState.getInstance(editor)
+        val keyHandlerState = KeyHandler.getInstance().keyHandlerState
 
-        val typedKeySequence = (commandState.mappingState.keys.toList().ifEmpty { commandState.commandBuilder.keys.toList() } + listOf(KeyStroke.getKeyStroke(charTyped)))
+        val typedKeySequence = (keyHandlerState.mappingState.keys.toList().ifEmpty { keyHandlerState.commandBuilder.keys.toList() } + listOf(KeyStroke.getKeyStroke(charTyped)))
             // since preceding counts are not matched for the corresponding description remove them
             .dropWhile { it.keyChar.isDigit() }
 
@@ -108,7 +109,7 @@ class WhichKeyActionListener : AnActionListener {
         val startTime = System.currentTimeMillis() // save start time for the popup delay
 
         val mappingMode = vimEditor.mode.toMappingMode()
-        val mappingState = CommandState.getInstance(editor).mappingState
+        val mappingState = KeyHandler.getInstance().keyHandlerState.mappingState
         val nestedMappings = getMappingsToDisplay(editor, typedKeySequence)
         val window = WindowManager.getInstance().getFrame(editor.project)
 
@@ -121,20 +122,21 @@ class WhichKeyActionListener : AnActionListener {
 
             // <esc> should ALWAYS close the popup without any further action
             if (typedKeySequence.size > 1 && typedKeySequence.last() == KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0)) {
-                return blockNextKeyPress(isShortcut, mappingState)
+                return blockNextKeyPress(isShortcut, vimEditor, mappingState)
             }
 
             if (!MappingConfig.processWithUnknownMapping(mappingMode, typedKeySequence)) {
-                return blockNextKeyPress(isShortcut, mappingState)
+                return blockNextKeyPress(isShortcut, vimEditor, mappingState)
             }
         } else {
             PopupConfig.showPopup(window!!, typedKeySequence, nestedMappings, startTime)
         }
     }
 
-    private fun blockNextKeyPress(isShortcut: Boolean, mappingState: MappingState) {
-        // resetting the mapping state will prevent all BUT the last key from being processed by IdeaVim
-        mappingState.resetMappingSequence()
+    private fun blockNextKeyPress(isShortcut: Boolean, editor: VimEditor, mappingState: MappingState) {
+        // resetting the key handler state will prevent all BUT the last key from being processed by IdeaVim
+        // this will reset the internal mapping state & the command builder
+        KeyHandler.getInstance().reset(editor)
 
         if (isShortcut) {
             // this is a hack to block the next action :-)
@@ -167,7 +169,7 @@ class WhichKeyActionListener : AnActionListener {
          * for example pressing "fg" should not show any nested mappings for "g" as the key press for "g" was already handled
          * and therefore any subsequent key press would not execute any of the actions presented in the popup
          */
-        if (CommandState.getInstance(editor).commandBuilder.expectedArgumentType == Argument.Type.DIGRAPH) {
+        if (KeyHandler.getInstance().keyHandlerState.commandBuilder.expectedArgumentType == Argument.Type.DIGRAPH) {
             return emptyList()
         }
 
