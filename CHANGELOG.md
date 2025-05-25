@@ -4,10 +4,16 @@
 
 ### Changed
 
+- Fixes compatibility with latest IdeaVIM version
+  - The plugin now **requires** at least IdeaVIM version `2.24.0`
+  - Fixes [#101](https://github.com/TheBlob42/idea-which-key/issues/101)
 - Refactor to use `AnActionListener` on the [Message Bus](https://plugins.jetbrains.com/docs/intellij/messaging-infrastructure.html#message-bus)
   - Enables proper functionality for special keys like `<C-c>`, `<M-c>`, `<Esc>`
   - Fixes **the** big know issues of the plugin
   - Fixes [#52](https://github.com/TheBlob42/idea-which-key/issues/52) and [#81](https://github.com/TheBlob42/idea-which-key/issues/81)
+- Make custom descriptions work properly with special key mappings (e.g. `<C-w>s`)
+  - Fixes [#89](https://github.com/TheBlob42/idea-which-key/issues/89)
+- Allow setting of custom descriptions for builtin commands (see [#85](https://github.com/TheBlob42/idea-which-key/pull/85))
 - Properly check for recursive mappings
   - Fixes [#71](https://github.com/TheBlob42/idea-which-key/issues/71)
   ```vim
