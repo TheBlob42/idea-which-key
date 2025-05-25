@@ -8,7 +8,6 @@ import com.maddyhome.idea.vim.handler.TextObjectActionHandler
 import com.maddyhome.idea.vim.key.ToKeysMappingInfo
 import com.maddyhome.idea.vim.vimscript.model.datatypes.VimString
 import eu.theblob42.idea.whichkey.model.Mapping
-import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
@@ -16,7 +15,6 @@ object MappingConfig {
 
     const val DEFAULT_PREFIX_LABEL = "Prefix"
 
-    private const val DEFAULT_LEADER_KEY = "\\"
     private val DESCRIPTION_REGEX = Regex("([^ \\t]+)[ \\t]*(.*)")
 
     private val processUnknownMappings: Boolean
@@ -308,7 +306,7 @@ object MappingConfig {
                 // destructure the regex groups into Pairs
                 DESCRIPTION_REGEX.find(it)?.groupValues?.let { (_, keySequence, description) ->
                     val keys = injector.parser.parseKeys(keySequence)
-                    Pair(keys.joinToString(separator = "") { keyToString(it) }, description)
+                    Pair(keys.joinToString(separator = "") { keyStroke -> keyToString(keyStroke) }, description)
                 }
             }
             .toMap()
