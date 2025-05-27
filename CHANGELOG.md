@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.11.0
+
 ### Changed
 
 - Fixes compatibility with latest IdeaVIM version

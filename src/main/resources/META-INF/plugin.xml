@@ -29,14 +29,18 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.10.3</strong>
+        <strong>0.11.0</strong>
     </p>
     <ul>
-        <li>Fix plugin exception about ActionUpdateThread.OLD_EDT</li>
+        <li>Update API support for IdeaVIM version <code>2.24.0</code></li>
+        <li>Enables proper functionality for special keys like <code>&lt;C-c&gt;</code>, <code>&lt;M-c&gt;</code>, <code>&lt;Esc&gt;</code></li>
+        <li>Make custom descriptions work properly with special key mappings (e.g. <code>&lt;C-w&gt;s</code>)</li>
+        <li>Allow setting of custom descriptions for builtin commands</li>
+        <li>Fix check for recursive mappings</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.10.3</version>
+    <version>0.11.0</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
