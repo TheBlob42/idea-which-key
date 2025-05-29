@@ -14,6 +14,7 @@ import com.maddyhome.idea.vim.api.injector
 import com.maddyhome.idea.vim.command.Argument
 import com.maddyhome.idea.vim.command.MappingMode
 import com.maddyhome.idea.vim.command.MappingState
+import com.maddyhome.idea.vim.helper.EditorHelper
 import com.maddyhome.idea.vim.impl.state.toMappingMode
 import com.maddyhome.idea.vim.newapi.vim
 import com.maddyhome.idea.vim.options.OptionAccessScope
@@ -64,6 +65,10 @@ class WhichKeyActionListener : AnActionListener {
         }
 
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
+        if (!EditorHelper.isFileEditor(editor)) {
+            return
+        }
+
         val keyHandlerState = KeyHandler.getInstance().keyHandlerState
         val mappingState = keyHandlerState.mappingState
         val vimCurrentKeySequence = mappingState.keys.toList().ifEmpty { keyHandlerState.commandBuilder.keys.toList() }
@@ -89,7 +94,11 @@ class WhichKeyActionListener : AnActionListener {
 
     override fun beforeEditorTyping(charTyped: Char, dataContext: DataContext) {
         PopupConfig.hidePopup()
+
         val editor = dataContext.getData(CommonDataKeys.EDITOR) ?: return
+        if (!EditorHelper.isFileEditor(editor)) {
+            return
+        }
 
         val keyHandlerState = KeyHandler.getInstance().keyHandlerState
 
