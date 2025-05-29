@@ -219,3 +219,12 @@ If you are using the [easymotion](https://github.com/AlexPl292/IdeaVim-EasyMotio
 - Pressing `g` will now trigger the popup and "block" your view
 
 So far there is no workaround for this issues, but a fix is planned once I figure it out
+
+### Non-File-Based Editors
+
+Since version `2.25.1` IdeaVIM is not active in any non-file-based editors with the following exceptions ([issue](https://youtrack.jetbrains.com/issue/VIM-3929)):
+
+- The GIT commit window
+- The diff viewer
+
+The Which-Key plugin matches this behavior **but** without any exceptions in order to keep the implementation simple (this might change in the future)
