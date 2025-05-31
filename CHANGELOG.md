@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.11.1
+
+### Changed
+
+- Disable popup for non-file-based editors
+
 ## 0.11.0
 
 ### Changed
