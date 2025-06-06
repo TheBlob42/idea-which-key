@@ -5,9 +5,9 @@ import com.intellij.openapi.actionSystem.ex.AnActionListener
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.ActionPlan
 import com.intellij.openapi.editor.actionSystem.TypedAction
+import com.intellij.openapi.editor.actionSystem.TypedActionHandler
 import com.intellij.openapi.editor.actionSystem.TypedActionHandlerEx
 import com.intellij.openapi.wm.WindowManager
-import com.maddyhome.idea.vim.VimTypedActionHandler
 import com.maddyhome.idea.vim.KeyHandler
 import com.maddyhome.idea.vim.api.VimEditor
 import com.maddyhome.idea.vim.api.injector
@@ -24,7 +24,7 @@ import eu.theblob42.idea.whichkey.model.Mapping
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
-class BlockNextTypedActionHandler(private val originalHandler: VimTypedActionHandler) : TypedActionHandlerEx {
+class BlockNextTypedActionHandler(private val originalHandler: TypedActionHandler) : TypedActionHandlerEx {
     override fun execute(editor: Editor, char: Char, dataContext: DataContext) {
         // do nothing then restore the original handler
         TypedAction.getInstance().setupRawHandler(originalHandler)
@@ -158,7 +158,7 @@ class WhichKeyActionListener : AnActionListener {
         } else {
             // block the next typing by using a custom raw handler which will be reset afterward
             val typedAction = TypedAction.getInstance()
-            val rawTypedActionHandler = typedAction.rawHandler as VimTypedActionHandler
+            val rawTypedActionHandler = typedAction.rawHandler
             typedAction.setupRawHandler(BlockNextTypedActionHandler(rawTypedActionHandler))
         }
     }
