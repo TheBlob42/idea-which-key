@@ -18,7 +18,11 @@ object FormatConfig {
 
     private const val DEFAULT_KEYWORD_KEY = "keyword"
     private val defaultKeywordColor: String
-    get() = toHexColor(EditorColorsManager.getInstance().schemeForCurrentUITheme.getAttributes(TextAttributesKey.createTextAttributesKey("DEFAULT_KEYWORD")).foregroundColor)
+    get() = EditorColorsManager.getInstance()
+        .schemeForCurrentUITheme
+        .getAttributes(TextAttributesKey.createTextAttributesKey("DEFAULT_KEYWORD"))
+        ?.foregroundColor?.let { toHexColor(it) }
+        ?: defaultForegroundColor
 
     private const val DEFAULT_DIVIDER = " → "
     private val divider: String

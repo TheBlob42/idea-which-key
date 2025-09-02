@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.11.2
+
+### Changed
+
+- Use default foreground color for keys if `keyword` color is not set in colorscheme to prevent NPE
+
 ## 0.11.1
 
 ### Changed

@@ -29,14 +29,14 @@
 
     <change-notes><![CDATA[
     <p>
-        <strong>0.11.1</strong>
+        <strong>0.11.2</strong>
     </p>
     <ul>
-        <li>Disable popup for non-file-based editors</li>
+        <li>Fix NPE for missing foreground color</li>
     </ul>
     ]]></change-notes>
 
-    <version>0.11.1</version>
+    <version>0.11.2</version>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>IdeaVIM</depends>
